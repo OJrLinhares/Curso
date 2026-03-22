@@ -149,6 +149,29 @@ button.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
 .mod-m4{border-left:3px solid var(--c4);}
 .mod-m4 .mp-level,.mod-m4 .mp-num{color:var(--c4);}
 .mod-m4 .mp-tag{background:rgba(255,209,102,0.1);color:var(--c4);}
+.mod-preview.is-open{border-color:var(--border2);box-shadow:0 12px 40px rgba(0,0,0,0.35);}
+.mod-preview-header{width:100%;text-align:left;cursor:pointer;background:none;border:none;color:inherit;
+  padding:1.5rem;position:relative;display:block;font:inherit;}
+.mod-preview-header:focus-visible{outline:2px solid var(--c2);outline-offset:2px;border-radius:var(--radius-lg);}
+.mod-preview-body{padding:0 1.5rem 1.5rem;border-top:1px solid var(--border);display:none;}
+.mod-preview.is-open .mod-preview-body{display:block;}
+.mod-expand-hint{display:block;margin-top:0.85rem;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--c2);}
+.mod-long-desc{font-size:0.78rem;color:var(--muted2);line-height:1.85;margin-bottom:0.5rem;}
+.mod-h4{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;margin:1.1rem 0 0.45rem;color:var(--text);}
+.mod-outcomes{margin:0 0 0.9rem 1.15rem;font-size:0.74rem;color:var(--muted2);line-height:1.75;}
+.mod-lesson-plan{list-style:none;padding:0;margin:0;max-height:min(60vh,420px);overflow-y:auto;}
+.mod-lp-item{display:flex;gap:10px;padding:0.55rem 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+.mod-lp-item:last-child{border-bottom:none;}
+.mod-lp-num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:var(--muted2);}
+.mod-lp-title{display:block;font-weight:600;color:var(--text);font-size:0.76rem;}
+.mod-lp-meta{font-size:0.62rem;color:var(--muted);}
+.mod-cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border);}
+.guest-banner{background:rgba(110,125,255,0.08);border:1px solid rgba(110,125,255,0.25);border-radius:var(--radius);
+  padding:0.85rem 1rem;font-size:0.72rem;color:var(--muted2);line-height:1.6;margin-bottom:1.25rem;}
+.guest-banner strong{color:var(--c2);}
+.guest-banner-btn{display:inline;background:none;border:none;padding:0;color:var(--c1);text-decoration:underline;cursor:pointer;font:inherit;}
+.guest-banner-btn:hover{color:var(--c5);}
 
 /* ════ TESTIMONIALS (landing) ════ */
 .testimonials-section{padding:5rem 2rem;background:var(--surface);
@@ -524,7 +547,7 @@ button.upload-area{font:inherit;width:100%;background:transparent;color:inherit;
   <section class="modules-overview" id="modulos">
     <div class="eyebrow">Trilha de Aprendizado</div>
     <h2 class="sec-h">4 módulos que te<br><em style="font-family:'Fraunces',serif;font-style:italic">transformam no mercado</em></h2>
-    <p class="sec-p">Cada módulo foi construído para solidificar o anterior, evoluindo de fundamentos técnicos até liderança e produto.</p>
+    <p class="sec-p">Cada módulo foi construído para solidificar o anterior, evoluindo de fundamentos técnicos até liderança e produto. Toque em um módulo para expandir a ementa, objetivos e lista de aulas — sem precisar criar conta.</p>
     <div class="modules-grid" id="landingModulesGrid"></div>
   </section>
 
@@ -683,7 +706,7 @@ button.upload-area{font:inherit;width:100%;background:transparent;color:inherit;
 <div id="page-module" class="page">
   <main class="page-main" tabindex="-1">
   <div class="mod-wrap">
-    <button type="button" class="mod-back" onclick="showPage('dashboard')">← Voltar ao dashboard</button>
+    <button type="button" class="mod-back" onclick="backFromModule()">← Voltar</button>
     <div class="mod-hero" id="modHero"></div>
     <div class="dash-section-title" style="margin-top:1.5rem;">Aulas</div>
     <div class="lessons-list" id="lessonsList"></div>
@@ -829,6 +852,13 @@ const MODULES_DATA = [
     desc:'Python avançado, Docker, Pydantic, SQLAlchemy, testes automatizados e CI/CD — a base de todo sistema sólido.',
     hours:180, tags:['Iniciante','180h'],
     icon:'🌱',
+    longDesc:'Você constrói uma base sólida em Python moderno, empacotamento de aplicações, modelagem de dados e entrega contínua. Ideal para sair de scripts isolados e entregar projetos com padrão de mercado.',
+    outcomes:[
+      'Dominar asyncio e I/O concorrente para APIs e integrações.',
+      'Containerizar com Docker e orquestrar serviços com Compose.',
+      'Validar dados com Pydantic v2 e persistir com SQLAlchemy 2.0 + Alembic.',
+      'Garantir qualidade com pytest e pipelines CI/CD.'
+    ],
     lessons:[
       {
         id:'1-1', title:'Python Assíncrono com asyncio',
@@ -1147,6 +1177,13 @@ def test_email_validation(email, valid):
     desc:'FastAPI em produção, Redis Streams, Celery workers, arquiteturas event-driven e armazenamento em cloud.',
     hours:240, tags:['Intermediário','240h'],
     icon:'⚙️',
+    longDesc:'Você leva APIs FastAPI ao nível de produção: autenticação, cache, filas com Celery, Redis para streams e padrões para sistemas distribuídos e cloud.',
+    outcomes:[
+      'Projetar APIs REST seguras com JWT, CORS e documentação OpenAPI.',
+      'Usar Redis para cache, rate limiting e mensageria com Streams.',
+      'Distribuir tarefas assíncronas com Celery, workers e monitoramento.',
+      'Aplicar arquitetura event-driven e boas práticas em microserviços.'
+    ],
     lessons:[
       {
         id:'2-1', title:'FastAPI: APIs REST em Produção',
@@ -1397,6 +1434,13 @@ class EventBus:
     desc:'LangChain, LangGraph, OpenAI APIs, busca vetorial com Qdrant, pipelines RAG avaliados com RAGAS e observabilidade completa.',
     hours:300, tags:['Avançado','300h'],
     icon:'🤖',
+    longDesc:'Do primeiro prompt ao RAG em produção: integração com modelos OpenAI, LangChain e LangGraph, busca vetorial, avaliação com RAGAS e observabilidade de custo e latência.',
+    outcomes:[
+      'Integrar GPT, embeddings e visão em fluxos assíncronos.',
+      'Montar pipelines RAG com chunking, Qdrant e recuperação híbrida.',
+      'Orquestrar agentes com LangGraph e monitorar execuções.',
+      'Medir qualidade com RAGAS e métricas operacionais (tokens, erros).'
+    ],
     lessons:[
       {
         id:'3-1', title:'OpenAI API: GPT-4o, Embeddings e Vision',
@@ -1730,6 +1774,13 @@ start_http_server(9090)  # ou use /metrics endpoint</code></pre>
     desc:'Arquitetura enterprise, gestão de produto, marketing técnico, monetização de APIs e liderança de times de alto desempenho.',
     hours:240, tags:['Mais que Pronto','240h'],
     icon:'🏆',
+    longDesc:'Você evolui de implementador a referência técnica: arquitetura enterprise, decisões documentadas (ADRs), gestão de produto, posicionamento e monetização de APIs e SaaS.',
+    outcomes:[
+      'Aplicar resiliência (Circuit Breaker), ADRs e pilares Well-Architected.',
+      'Priorizar roadmap com RICE e conectar métricas de produto à engenharia.',
+      'Definir pricing, packaging e go-to-market para APIs e produtos digitais.',
+      'Liderar times técnicos com alinhamento a negócio e stakeholders.'
+    ],
     lessons:[
       {
         id:'4-1', title:'Arquitetura de Soluções Enterprise',
@@ -1913,6 +1964,7 @@ let currentQuizQ = 0;
 let quizAnswers = [];
 let selectedRating = 5;
 let prevPage = 'dashboard';
+let expandedLandingModuleId = null;
 
 // ══════════════════════════════════════════════════════════
 //  STORAGE
@@ -2085,28 +2137,70 @@ function showErr(el, msg) {
 //  LANDING
 // ══════════════════════════════════════════════════════════
 function renderLanding() {
-  // Modules grid
   const grid = document.getElementById('landingModulesGrid');
   if(grid) {
-    grid.innerHTML = MODULES_DATA.map(m=>`
-      <div class="mod-preview ${m.colorClass}" onclick="handleModuleClick(${m.id})">
-        <div class="mp-num">${m.id.toString().padStart(2,'0')}</div>
-        <div class="mp-level">${m.icon} ${m.level}</div>
-        <div class="mp-title">${m.title}</div>
-        <div class="mp-desc">${m.desc}</div>
-        <div class="mp-meta">
-          ${m.tags.map(t=>`<span class="mp-tag">${t}</span>`).join('')}
-          <span class="mp-tag">${m.lessons.length} aulas</span>
+    grid.innerHTML = MODULES_DATA.map(m=>{
+      const isOpen = expandedLandingModuleId === m.id;
+      const lessonsHtml = m.lessons.map((l,i)=>`
+        <li class="mod-lp-item">
+          <span class="mod-lp-num">${i+1}</span>
+          <div>
+            <span class="mod-lp-title">${escapeHtml(l.title)}</span>
+            <span class="mod-lp-meta">${escapeHtml(l.duration)} · ${l.type==='video'?'Vídeo':'Leitura'}</span>
+          </div>
+        </li>`).join('');
+      const outcomesHtml = (m.outcomes||[]).map(o=>`<li>${escapeHtml(o)}</li>`).join('');
+      const longDesc = escapeHtml(m.longDesc || m.desc);
+      return `
+      <div class="mod-preview ${m.colorClass}${isOpen?' is-open':''}" data-mod-id="${m.id}">
+        <button type="button" class="mod-preview-header" onclick="toggleLandingModule(${m.id})" aria-expanded="${isOpen}">
+          <div class="mp-num">${m.id.toString().padStart(2,'0')}</div>
+          <div class="mp-level">${m.icon} ${escapeHtml(m.level)}</div>
+          <div class="mp-title">${escapeHtml(m.title)}</div>
+          <div class="mp-desc">${escapeHtml(m.desc)}</div>
+          <div class="mp-meta">
+            ${m.tags.map(t=>`<span class="mp-tag">${escapeHtml(t)}</span>`).join('')}
+            <span class="mp-tag">${m.lessons.length} aulas</span>
+          </div>
+          <span class="mod-expand-hint">${isOpen?'▲ Recolher ementa':'▼ Ver ementa completa e objetivos'}</span>
+        </button>
+        <div class="mod-preview-body">
+          <p class="mod-long-desc">${longDesc}</p>
+          <h4 class="mod-h4">O que você vai dominar</h4>
+          <ul class="mod-outcomes">${outcomesHtml}</ul>
+          <h4 class="mod-h4">Ementa — aulas</h4>
+          <ol class="mod-lesson-plan">${lessonsHtml}</ol>
+          <div class="mod-cta-row">
+            <button type="button" class="btn-main" onclick="event.stopPropagation();openModuleFromLanding(${m.id})">${currentUser?'Abrir módulo no curso':'Ver aulas no player'}</button>
+            ${currentUser ? '' : `<button type="button" class="btn-ghost" onclick="event.stopPropagation();showPage('register')">Criar conta grátis</button>
+            <button type="button" class="btn-ghost" onclick="event.stopPropagation();showPage('login')">Já tenho conta</button>`}
+          </div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
   renderLandingTestis();
 }
 
-function handleModuleClick(id) {
-  if(!currentUser) { showPage('register'); return; }
+function toggleLandingModule(id) {
+  expandedLandingModuleId = expandedLandingModuleId === id ? null : id;
+  renderLanding();
+  if(expandedLandingModuleId) {
+    requestAnimationFrame(()=>{
+      const el = document.querySelector('[data-mod-id="'+expandedLandingModuleId+'"]');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+  }
+}
+
+function openModuleFromLanding(id) {
   currentModuleId = id;
   showPage('module');
+}
+
+function backFromModule() {
+  if(currentUser) showPage('dashboard');
+  else showPage('landing');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2173,12 +2267,15 @@ function renderModulePage() {
   const progress = currentUser ? S.progress(currentUser.email) : {};
   const done = m.lessons.filter(l=>progress[`${m.id}-${l.id}`]).length;
   const pct = m.lessons.length ? Math.round(done/m.lessons.length*100) : 0;
+  const guestNote = !currentUser ? `<div class="guest-banner"><strong>Modo visitante.</strong> Você pode assistir às aulas e ler o material. <button type="button" class="guest-banner-btn" onclick="showPage('register')">Crie uma conta grátis</button> para salvar progresso e fazer a avaliação do módulo.</div>` : '';
+  const descBlock = `<div class="mod-description">${escapeHtml(m.longDesc || m.desc)}</div>`;
 
   document.getElementById('modHero').innerHTML = `
+    ${guestNote}
     <div class="mod-hero-num">${m.id.toString().padStart(2,'0')}</div>
-    <div class="mod-level" style="color:${m.color}">${m.icon} ${m.level}</div>
-    <div class="mod-title">${m.title}</div>
-    <div class="mod-description">${m.desc}</div>
+    <div class="mod-level" style="color:${m.color}">${m.icon} ${escapeHtml(m.level)}</div>
+    <div class="mod-title">${escapeHtml(m.title)}</div>
+    ${descBlock}
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;font-size:0.72rem;color:var(--muted2);">
       <span>📚 ${m.lessons.length} aulas</span>
       <span>⏱ ${m.hours}h de conteúdo</span>
@@ -2195,8 +2292,8 @@ function renderModulePage() {
     <div class="lesson-item ${isDone?'completed':''}" onclick="openLesson(${m.id},'${l.id}')">
       <div class="lesson-check">${isDone?'✓':i+1}</div>
       <div class="lesson-info">
-        <div class="lesson-title">${l.title}</div>
-        <div class="lesson-meta">⏱ ${l.duration}</div>
+        <div class="lesson-title">${escapeHtml(l.title)}</div>
+        <div class="lesson-meta">⏱ ${escapeHtml(l.duration)}</div>
       </div>
       <span class="lesson-type type-${l.type}">▶ ${l.type==='video'?'Vídeo':'Leitura'}</span>
     </div>`;
@@ -2204,11 +2301,18 @@ function renderModulePage() {
 
   const quizDone = progress[`quiz-${m.id}`];
   const quizBtn = document.getElementById('modQuizBtn');
+  quizBtn.disabled = false;
+  quizBtn.removeAttribute('title');
   if(quizDone) {
     const score = progress[`quiz-score-${m.id}`] || 0;
     quizBtn.textContent = `✅ Avaliação concluída — Nota: ${score}%`;
     quizBtn.style.borderColor = 'var(--c1)';
     quizBtn.style.color = 'var(--c1)';
+  } else if(!currentUser) {
+    quizBtn.textContent = `📝 Avaliação do módulo (login para fazer)`;
+    quizBtn.style.borderColor = 'var(--c4)';
+    quizBtn.style.color = 'var(--c4)';
+    quizBtn.title = 'Entre para registrar a nota e salvar progresso';
   } else {
     quizBtn.textContent = `📝 Fazer avaliação do módulo ${m.id}`;
     quizBtn.style.borderColor = 'var(--c4)';
