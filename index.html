@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -3562,7 +3562,7 @@ result = agent.invoke({"question": "Como configurar Celery com Redis?", "iterati
           {
             id: '3-3', title: 'Qdrant e Busca Vetorial Semântica',
             type: 'video', duration: '52min',
-            videoId: 'klTvEwg2oac',
+            videoId: 'woKYyhLCVnU',
             content: `
 <h2>Qdrant — Banco de dados vetorial de alta performance</h2>
 <p>Qdrant armazena vetores (embeddings) e permite busca por similaridade semântica. Fundamental para sistemas RAG, recomendação e busca inteligente.</p>
@@ -3826,7 +3826,7 @@ Usar Redis Streams (já temos Redis para cache) em vez de adicionar RabbitMQ.
           {
             id: '4-2', title: 'Gestão de Produto e Roadmap Técnico',
             type: 'video', duration: '52min',
-            videoId: 'Ts44mVJPjXM',
+            videoId: 'woKYyhLCVnU',
             content: `
 <h2>Product Management para Engenheiros</h2>
 <p>Engenheiros que entendem produto tomam melhores decisões técnicas, comunicam melhor com stakeholders e avançam mais rápido na carreira.</p>
@@ -3863,7 +3863,7 @@ rice_b = (200 * 4 * 0.9) / 1  # = 720
           {
             id: '4-3', title: 'Marketing Técnico e Personal Branding',
             type: 'video', duration: '45min',
-            videoId: 's0DnMTkSoaQ',
+            videoId: 'woKYyhLCVnU',
             content: `
 <h2>Marketing Técnico — Seja conhecido pelo que sabe</h2>
 <p>No mercado de IA e engenharia, visibilidade técnica vale tanto quanto habilidade técnica. Quem não aparece, não é lembrado.</p>
@@ -3890,7 +3890,7 @@ rice_b = (200 * 4 * 0.9) / 1  # = 720
           {
             id: '4-4', title: 'Monetização de APIs e Modelos SaaS',
             type: 'video', duration: '55min',
-            videoId: 'NUkpP3HQEXY',
+            videoId: 'woKYyhLCVnU',
             content: `
 <h2>Monetizando seu conhecimento técnico</h2>
 <p>Saber construir sistemas é valioso. Saber precificar, vender e escalar é transformador.</p>
@@ -4146,9 +4146,11 @@ cac = total_sales_marketing_spend / new_customers
           <h4 class="mod-h4">Ementa — aulas</h4>
           <ol class="mod-lesson-plan">${lessonsHtml}</ol>
           <div class="mod-cta-row">
-            <button type="button" class="btn-main" onclick="openModuleFromLanding(${m.id})">${currentUser ? 'Abrir módulo no curso' : 'Ver aulas no player'}</button>
-            ${currentUser ? '' : `<button type="button" class="btn-ghost" onclick="showPage('register')">Criar conta grátis</button>
-            <button type="button" class="btn-ghost" onclick="showPage('login')">Já tenho conta</button>`}
+            ${currentUser ? 
+              `<button type="button" class="btn-main" onclick="openFirstLesson(${m.id})">ABRIR MÓDULO NO CURSO</button>` 
+            : 
+              `<button type="button" class="btn-main" onclick="showPage('login')">INICIAR AULAS (LOGIN/CADASTRO)</button>`
+            }
           </div>
         </div>
       </div>`;
@@ -4298,6 +4300,13 @@ cac = total_sales_marketing_spend / new_customers
     // ══════════════════════════════════════════════════════════
     //  LESSON PAGE
     // ══════════════════════════════════════════════════════════
+
+    function openFirstLesson(moduleId) {
+      const m = MODULES_DATA.find(x => x.id === moduleId);
+      if (m && m.lessons && m.lessons.length > 0) {
+        openLesson(moduleId, m.lessons[0].id);
+      }
+    }
 
     function openLesson(moduleId, lessonId) {
       currentModuleId = moduleId;
