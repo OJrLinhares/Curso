@@ -1,2 +1,1346 @@
-# Curso
-pós-graduação em desenvolvimento tecnológico com Python e IA
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASI — Arquiteto de Sistemas Inteligentes</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1120;
+    --surface2: #141927;
+    --border: #1e2840;
+    --accent1: #00e5ff;
+    --accent2: #7b61ff;
+    --accent3: #ff4d6d;
+    --accent4: #39ff7e;
+    --text: #e8edf8;
+    --muted: #6b7a9e;
+    --gold: #f0c040;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  /* ──── HERO ──── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    position: relative;
+    padding: 6rem 2rem 4rem;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 50%, rgba(0,229,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(123,97,255,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 60% 80%, rgba(255,77,109,0.05) 0%, transparent 50%);
+  }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(30,40,64,0.4) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30,40,64,0.4) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 900px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid var(--accent1);
+    border-radius: 100px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 2rem;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent1);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.9s 0.1s ease both;
+  }
+
+  h1 .line1 { display: block; color: var(--text); }
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+    animation: fadeUp 0.9s 0.2s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.9s 0.35s ease both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent1);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ──── SECTION ──── */
+  section {
+    padding: 6rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    max-width: 560px;
+    margin-bottom: 3rem;
+  }
+
+  /* ──── MODULES ──── */
+  .modules-grid {
+    display: grid;
+    gap: 2px;
+  }
+
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    margin-bottom: 2px;
+  }
+
+  .module-card:hover { border-color: var(--accent2); }
+
+  .module-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem 2.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .module-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0.12;
+  }
+
+  .module-meta { }
+
+  .module-level {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+
+  .module-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+  }
+
+  .module-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .module-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .module-duration {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .module-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* module colors */
+  .m1 .module-num, .m1 .module-level { color: var(--accent4); }
+  .m1 .module-tag { background: rgba(57,255,126,0.12); color: var(--accent4); }
+  .m1 { border-left: 3px solid var(--accent4); }
+
+  .m2 .module-num, .m2 .module-level { color: var(--accent1); }
+  .m2 .module-tag { background: rgba(0,229,255,0.12); color: var(--accent1); }
+  .m2 { border-left: 3px solid var(--accent1); }
+
+  .m3 .module-num, .m3 .module-level { color: var(--accent2); }
+  .m3 .module-tag { background: rgba(123,97,255,0.12); color: var(--accent2); }
+  .m3 { border-left: 3px solid var(--accent2); }
+
+  .m4 .module-num, .m4 .module-level { color: var(--gold); }
+  .m4 .module-tag { background: rgba(240,192,64,0.12); color: var(--gold); }
+  .m4 { border-left: 3px solid var(--gold); }
+
+  .module-body {
+    padding: 0 2.5rem 2.5rem;
+    display: none;
+  }
+
+  .module-body.open { display: block; }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 2rem;
+  }
+
+  /* Topics grid */
+  .topics-wrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .topic-group {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+  }
+
+  .topic-group-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topic-group-title .icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .m1 .icon { background: rgba(57,255,126,0.12); }
+  .m2 .icon { background: rgba(0,229,255,0.12); }
+  .m3 .icon { background: rgba(123,97,255,0.12); }
+  .m4 .icon { background: rgba(240,192,64,0.12); }
+
+  .topic-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .topic-list li {
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .topic-list li::before {
+    content: '→';
+    color: var(--accent2);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Pills row */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 1.5rem;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Outcomes */
+  .outcomes {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    margin-top: 1.5rem;
+  }
+
+  .outcomes-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .outcomes-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .outcomes-list li {
+    font-size: 0.78rem;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .outcomes-list li::before {
+    content: '✓';
+    flex-shrink: 0;
+    font-weight: bold;
+  }
+
+  .m1 .outcomes-list li::before { color: var(--accent4); }
+  .m2 .outcomes-list li::before { color: var(--accent1); }
+  .m3 .outcomes-list li::before { color: var(--accent2); }
+  .m4 .outcomes-list li::before { color: var(--gold); }
+
+  /* ──── STACK SECTION ──── */
+  .stack-section {
+    padding: 5rem 2rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stack-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 2.5rem;
+  }
+
+  .stack-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1rem;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .stack-item:hover {
+    border-color: var(--accent2);
+    transform: translateY(-2px);
+  }
+
+  .stack-item .s-icon { font-size: 1.8rem; margin-bottom: 0.5rem; display: block; }
+  .stack-item .s-name { font-size: 0.72rem; font-weight: 500; color: var(--text); display: block; }
+  .stack-item .s-cat { font-size: 0.65rem; color: var(--muted); display: block; margin-top: 2px; }
+
+  /* ──── ROADMAP ──── */
+  .roadmap {
+    display: flex;
+    gap: 0;
+    position: relative;
+    overflow-x: auto;
+    padding-bottom: 2rem;
+    margin-top: 3rem;
+  }
+
+  .roadmap-step {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    margin-right: 40px;
+  }
+
+  .roadmap-step::after {
+    content: '→';
+    position: absolute;
+    right: -28px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+
+  .roadmap-step:last-child { margin-right: 0; }
+  .roadmap-step:last-child::after { display: none; }
+
+  .rs-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    opacity: 0.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .rs-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .rs-time {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* ──── FOOTER ──── */
+  .footer-cta {
+    padding: 6rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(123,97,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+
+  .cta-sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    border: none;
+    border-radius: 100px;
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(123,97,255,0.4);
+  }
+
+  /* ──── PROGRESS BAR ──── */
+  .progress-map {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 4rem;
+  }
+
+  .pm-step {
+    background: var(--surface);
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .pm-icon { font-size: 1.4rem; display: block; margin-bottom: 0.4rem; }
+  .pm-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .pm-sub { font-size: 0.65rem; color: var(--muted); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .module-header { grid-template-columns: 1fr auto; }
+    .module-num { display: none; }
+    .topics-wrap { grid-template-columns: 1fr; }
+    .progress-map { grid-template-columns: repeat(2, 1fr); }
+    .roadmap-step { min-width: 160px; }
+  }
+
+  /* Toggle arrow */
+  .toggle-icon {
+    font-size: 1.2rem;
+    color: var(--muted);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+  }
+
+  .module-card.open .toggle-icon { transform: rotate(180deg); }
+
+  .practical-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    margin-top: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .proj-badge { background: rgba(255,77,109,0.12); color: var(--accent3); }
+  .lab-badge { background: rgba(57,255,126,0.1); color: var(--accent4); }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.4;
+    animation: bounceDown 2s infinite;
+  }
+
+  .scroll-hint span { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; }
+
+  @keyframes bounceDown {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ──── HERO ──── -->
+<div class="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-inner">
+    <div class="badge">
+      <span class="dot"></span>
+      Pós-Graduação em Tecnologia · 4 Módulos · 960h totais
+    </div>
+    <h1>
+      <span class="line1">Arquiteto de</span>
+      <span class="line2">Sistemas Inteligentes</span>
+    </h1>
+    <p class="hero-sub">
+      Do zero ao sênior em IA aplicada, APIs modernas, gestão de produto e go-to-market.
+      Um curso que te coloca no centro do mercado.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">4</span>
+        <span class="stat-label">Módulos</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">960h</span>
+        <span class="stat-label">Conteúdo</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">48+</span>
+        <span class="stat-label">Projetos Práticos</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">12</span>
+        <span class="stat-label">Stacks Dominadas</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>↓ explorar</span>
+  </div>
+</div>
+
+<!-- ──── PROGRESS MAP ──── -->
+<section>
+  <div class="section-label">Trilha de Evolução</div>
+  <div class="section-title">Sua jornada de <br><em style="font-family:'Instrument Serif',serif;font-style:italic">zero ao irreplaceable</em></div>
+  <p class="section-desc">Cada módulo foi desenhado para construir sobre o anterior, garantindo solidez técnica e visão estratégica completa.</p>
+
+  <div class="progress-map">
+    <div class="pm-step">
+      <span class="pm-icon">🌱</span>
+      <div class="pm-title" style="color:var(--accent4)">Módulo 1</div>
+      <div class="pm-sub">Fundamentos Sólidos</div>
+    </div>
+    <div class="pm-step">
+      <span class="pm-icon">⚙️</span>
+      <div class="pm-title" style="color:var(--accent1)">Módulo 2</div>
+      <div class="pm-sub">Sistemas Robustos</div>
+    </div>
+    <div class="pm-step">
+      <span class="pm-icon">🤖</span>
+      <div class="pm-title" style="color:var(--accent2)">Módulo 3</div>
+      <div class="pm-sub">IA & Sistemas Inteligentes</div>
+    </div>
+    <div class="pm-step">
+      <span class="pm-icon">🏆</span>
+      <div class="pm-title" style="color:var(--gold)">Módulo 4</div>
+      <div class="pm-sub">Produto, Gestão & Mercado</div>
+    </div>
+  </div>
+
+  <!-- ──── MODULE 1 ──── -->
+  <div class="modules-grid">
+
+    <div class="module-card m1" id="mod1">
+      <div class="module-header" onclick="toggleModule('mod1')">
+        <div class="module-num">01</div>
+        <div class="module-meta">
+          <div class="module-level">Módulo 1 · Iniciante · 180h</div>
+          <div class="module-title">Fundamentos do Ecossistema Moderno</div>
+          <div class="module-desc">Domine Python avançado, containers, versionamento e os pilares que sustentam qualquer sistema de produção.</div>
+          <div>
+            <span class="practical-badge lab-badge">🧪 12 Labs</span>
+            <span class="practical-badge proj-badge">🚀 3 Projetos</span>
+          </div>
+        </div>
+        <div class="module-right">
+          <span class="module-duration">~180 horas</span>
+          <span class="module-tag">Iniciante</span>
+          <div class="toggle-icon" style="margin-top:1rem">▾</div>
+        </div>
+      </div>
+      <div class="module-body" id="mod1-body">
+        <div class="divider"></div>
+        <div class="topics-wrap">
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🐍</span> Python 3.10+ Avançado
+            </div>
+            <ul class="topic-list">
+              <li>Type hints, dataclasses e protocols</li>
+              <li>Generators, iterators e context managers</li>
+              <li>Async/await e event loop (asyncio)</li>
+              <li>Decorators e metaclasses</li>
+              <li>Testing com pytest e coverage</li>
+              <li>Performance profiling e otimização</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🐳</span> Docker & Infraestrutura
+            </div>
+            <ul class="topic-list">
+              <li>Docker fundamentals e Dockerfile otimizado</li>
+              <li>Docker Compose multi-serviço</li>
+              <li>Volumes, networks e secrets</li>
+              <li>Multi-stage builds e imagens lean</li>
+              <li>Container registries (Docker Hub, ECR)</li>
+              <li>Introdução ao Kubernetes</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">📦</span> Dados & Validação
+            </div>
+            <ul class="topic-list">
+              <li>Pydantic v2: modelos, validação e serialização</li>
+              <li>SQLAlchemy Core & ORM fundamentos</li>
+              <li>Migrations com Alembic</li>
+              <li>SQL Server: queries, índices e performance</li>
+              <li>Schemas e contratos de dados</li>
+              <li>JSON Schema e OpenAPI spec</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🔧</span> DevOps & Qualidade
+            </div>
+            <ul class="topic-list">
+              <li>Git avançado: branches, rebase, cherry-pick</li>
+              <li>GitHub Actions para CI/CD básico</li>
+              <li>Pre-commit hooks e linting (ruff, black)</li>
+              <li>Conventional commits e semantic versioning</li>
+              <li>Makefile e scripts de automação</li>
+              <li>Documentação técnica com MkDocs</li>
+            </ul>
+          </div>
+        </div>
+        <div class="outcomes">
+          <div class="outcomes-title">Ao finalizar este módulo você será capaz de:</div>
+          <ul class="outcomes-list">
+            <li>Escrever Python profissional e idiomático</li>
+            <li>Containerizar qualquer aplicação com Docker</li>
+            <li>Modelar dados robustos com Pydantic e SQLAlchemy</li>
+            <li>Manter repositórios com CI/CD básico</li>
+            <li>Criar pipelines de testes automatizados</li>
+            <li>Documentar APIs e sistemas</li>
+          </ul>
+        </div>
+        <div class="pills">
+          <span class="pill">Python 3.12</span>
+          <span class="pill">Docker</span>
+          <span class="pill">Docker Compose</span>
+          <span class="pill">Pydantic v2</span>
+          <span class="pill">SQLAlchemy 2.0</span>
+          <span class="pill">Alembic</span>
+          <span class="pill">pytest</span>
+          <span class="pill">GitHub Actions</span>
+          <span class="pill">ruff</span>
+          <span class="pill">asyncio</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── MODULE 2 ──── -->
+    <div class="module-card m2" id="mod2">
+      <div class="module-header" onclick="toggleModule('mod2')">
+        <div class="module-num">02</div>
+        <div class="module-meta">
+          <div class="module-level">Módulo 2 · Intermediário · 240h</div>
+          <div class="module-title">Construindo Sistemas Robustos & Escaláveis</div>
+          <div class="module-desc">APIs de produção, processamento assíncrono, cache distribuído e arquiteturas event-driven que suportam escala real.</div>
+          <div>
+            <span class="practical-badge lab-badge">🧪 18 Labs</span>
+            <span class="practical-badge proj-badge">🚀 5 Projetos</span>
+          </div>
+        </div>
+        <div class="module-right">
+          <span class="module-duration">~240 horas</span>
+          <span class="module-tag">Intermediário</span>
+          <div class="toggle-icon" style="margin-top:1rem">▾</div>
+        </div>
+      </div>
+      <div class="module-body" id="mod2-body">
+        <div class="divider"></div>
+        <div class="topics-wrap">
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">⚡</span> FastAPI em Profundidade
+            </div>
+            <ul class="topic-list">
+              <li>Routers, dependencies e lifecycle</li>
+              <li>Background tasks e webhooks</li>
+              <li>Auth: JWT, OAuth2, API Keys</li>
+              <li>Rate limiting e throttling</li>
+              <li>WebSockets e Server-Sent Events</li>
+              <li>Middleware customizado e CORS</li>
+              <li>Testes de integração com TestClient</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🔴</span> Redis: Cache & Streams
+            </div>
+            <ul class="topic-list">
+              <li>Redis fundamentals e estruturas de dados</li>
+              <li>Cache strategies: TTL, LRU, write-through</li>
+              <li>Redis Streams para event sourcing</li>
+              <li>Pub/Sub e message patterns</li>
+              <li>Session management e tokens</li>
+              <li>Redis Sentinel e clusters</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🌿</span> Celery & Processamento Assíncrono
+            </div>
+            <ul class="topic-list">
+              <li>Celery workers, tasks e queues</li>
+              <li>Retry strategies e error handling</li>
+              <li>Celery Beat: tarefas agendadas (cron)</li>
+              <li>Flower: monitoramento de workers</li>
+              <li>Chains, groups e chords</li>
+              <li>Batch processing otimizado</li>
+              <li>Dead letter queues e circuit breakers</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🏗️</span> Arquiteturas Modernas
+            </div>
+            <ul class="topic-list">
+              <li>Microservices: design e trade-offs</li>
+              <li>Event-driven architecture (EDA)</li>
+              <li>CQRS e Event Sourcing</li>
+              <li>API Gateway patterns</li>
+              <li>Service mesh básico</li>
+              <li>Domain-Driven Design (DDD) aplicado</li>
+              <li>Strangler fig e migration patterns</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">📁</span> Armazenamento & Cloud
+            </div>
+            <ul class="topic-list">
+              <li>Object storage: S3, MinIO, Azure Blob</li>
+              <li>Upload multipart e presigned URLs</li>
+              <li>CDN e gestão de assets</li>
+              <li>Estratégias de backup e retenção</li>
+              <li>Gestão de documentos e relatórios</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🔐</span> Segurança & Compliance
+            </div>
+            <ul class="topic-list">
+              <li>OWASP Top 10 para APIs</li>
+              <li>Input validation e sanitização</li>
+              <li>Secrets management (Vault, env)</li>
+              <li>TLS/HTTPS e certificados</li>
+              <li>LGPD e privacidade de dados</li>
+            </ul>
+          </div>
+        </div>
+        <div class="outcomes">
+          <div class="outcomes-title">Ao finalizar este módulo você será capaz de:</div>
+          <ul class="outcomes-list">
+            <li>Construir APIs REST assíncronas production-ready</li>
+            <li>Implementar filas e workers com Celery</li>
+            <li>Usar Redis para cache e streaming de eventos</li>
+            <li>Desenhar arquiteturas event-driven</li>
+            <li>Gerenciar armazenamento em cloud</li>
+            <li>Aplicar segurança em camadas</li>
+          </ul>
+        </div>
+        <div class="pills">
+          <span class="pill">FastAPI</span>
+          <span class="pill">Redis</span>
+          <span class="pill">Celery</span>
+          <span class="pill">Flower</span>
+          <span class="pill">RabbitMQ</span>
+          <span class="pill">S3/MinIO</span>
+          <span class="pill">JWT</span>
+          <span class="pill">WebSockets</span>
+          <span class="pill">DDD</span>
+          <span class="pill">CQRS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── MODULE 3 ──── -->
+    <div class="module-card m3" id="mod3">
+      <div class="module-header" onclick="toggleModule('mod3')">
+        <div class="module-num">03</div>
+        <div class="module-meta">
+          <div class="module-level">Módulo 3 · Avançado · 300h</div>
+          <div class="module-title">IA Aplicada, RAG & Sistemas Inteligentes</div>
+          <div class="module-desc">LangChain, LangGraph, OpenAI APIs, busca vetorial com Qdrant, pipelines RAG avaliados com RAGAS e observabilidade completa.</div>
+          <div>
+            <span class="practical-badge lab-badge">🧪 24 Labs</span>
+            <span class="practical-badge proj-badge">🚀 8 Projetos</span>
+          </div>
+        </div>
+        <div class="module-right">
+          <span class="module-duration">~300 horas</span>
+          <span class="module-tag">Avançado</span>
+          <div class="toggle-icon" style="margin-top:1rem">▾</div>
+        </div>
+      </div>
+      <div class="module-body" id="mod3-body">
+        <div class="divider"></div>
+        <div class="topics-wrap">
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🧠</span> OpenAI APIs & LLMs
+            </div>
+            <ul class="topic-list">
+              <li>GPT-4o: function calling e structured outputs</li>
+              <li>Embeddings: text-embedding-3 e vetores</li>
+              <li>Vision API: análise de documentos e imagens</li>
+              <li>Whisper: transcrição e audio pipelines</li>
+              <li>Fine-tuning e RLHF básico</li>
+              <li>Token management e cost optimization</li>
+              <li>Prompt engineering avançado</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">⛓️</span> LangChain & LangGraph
+            </div>
+            <ul class="topic-list">
+              <li>Chains, agents e tools customizados</li>
+              <li>Memory patterns: buffer, summary, vector</li>
+              <li>LangGraph: stateful multi-agent flows</li>
+              <li>Nodes, edges e state machines</li>
+              <li>Human-in-the-loop patterns</li>
+              <li>Streaming responses end-to-end</li>
+              <li>Conditional routing e error recovery</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🔍</span> Busca Vetorial & Qdrant
+            </div>
+            <ul class="topic-list">
+              <li>Embeddings semânticos: teoria e prática</li>
+              <li>Qdrant: coleções, payload e filtros</li>
+              <li>Similarity search: cosine, dot, euclidean</li>
+              <li>Hybrid search: dense + sparse (BM25)</li>
+              <li>Chunking strategies para documentos</li>
+              <li>Re-ranking com cross-encoders</li>
+              <li>Multi-vector retrieval</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">📡</span> Pipelines RAG Production
+            </div>
+            <ul class="topic-list">
+              <li>RAG architecture: naive, advanced, modular</li>
+              <li>Indexing pipelines: parsing, chunking, embed</li>
+              <li>Query transformation e HyDE</li>
+              <li>Contextual compression e reranking</li>
+              <li>RAGAS: métricas de avaliação (faithfulness, relevance)</li>
+              <li>Evals automatizados e regression testing</li>
+              <li>Agentic RAG com LangGraph</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">📊</span> Observabilidade & Monitoramento
+            </div>
+            <ul class="topic-list">
+              <li>LangSmith: tracing, debug e datasets</li>
+              <li>Prometheus: métricas e exporters custom</li>
+              <li>Grafana: dashboards e alerting</li>
+              <li>Distributed tracing com OpenTelemetry</li>
+              <li>Logs estruturados com structlog</li>
+              <li>SLOs, SLAs e error budgets</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🏭</span> Automações Empresariais com IA
+            </div>
+            <ul class="topic-list">
+              <li>Classificação automática de documentos</li>
+              <li>Extração de informações de PDFs/imagens</li>
+              <li>Geração de relatórios com GPT-4o</li>
+              <li>Chatbots internos com RAG</li>
+              <li>Análise de sentimento e NPS automatizado</li>
+              <li>Automação de onboarding e suporte</li>
+            </ul>
+          </div>
+        </div>
+        <div class="outcomes">
+          <div class="outcomes-title">Ao finalizar este módulo você será capaz de:</div>
+          <ul class="outcomes-list">
+            <li>Construir pipelines RAG completos e avaliados</li>
+            <li>Criar agentes multi-step com LangGraph</li>
+            <li>Implementar busca semântica com Qdrant</li>
+            <li>Usar Vision API para extração de documentos</li>
+            <li>Monitorar LLMs em produção com LangSmith</li>
+            <li>Medir e melhorar qualidade de RAG com RAGAS</li>
+            <li>Automatizar processos empresariais com IA</li>
+          </ul>
+        </div>
+        <div class="pills">
+          <span class="pill">LangChain</span>
+          <span class="pill">LangGraph</span>
+          <span class="pill">OpenAI GPT-4o</span>
+          <span class="pill">Qdrant</span>
+          <span class="pill">RAGAS</span>
+          <span class="pill">LangSmith</span>
+          <span class="pill">Prometheus</span>
+          <span class="pill">Grafana</span>
+          <span class="pill">OpenTelemetry</span>
+          <span class="pill">Vision API</span>
+          <span class="pill">Embeddings</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── MODULE 4 ──── -->
+    <div class="module-card m4" id="mod4">
+      <div class="module-header" onclick="toggleModule('mod4')">
+        <div class="module-num">04</div>
+        <div class="module-meta">
+          <div class="module-level">Módulo 4 · Mais que Pronto · 240h</div>
+          <div class="module-title">Produto, Gestão Técnica & Go-to-Market</div>
+          <div class="module-desc">Transforme competência técnica em produtos, liderança e posicionamento de mercado. Da arquitetura ao revenue.</div>
+          <div>
+            <span class="practical-badge lab-badge">🧪 16 Labs</span>
+            <span class="practical-badge proj-badge">🚀 6 Projetos de Mercado</span>
+          </div>
+        </div>
+        <div class="module-right">
+          <span class="module-duration">~240 horas</span>
+          <span class="module-tag">Mais que Pronto</span>
+          <div class="toggle-icon" style="margin-top:1rem">▾</div>
+        </div>
+      </div>
+      <div class="module-body" id="mod4-body">
+        <div class="divider"></div>
+        <div class="topics-wrap">
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🏛️</span> Arquitetura de Soluções Enterprise
+            </div>
+            <ul class="topic-list">
+              <li>Well-architected framework (AWS/Azure)</li>
+              <li>Design de sistemas de alta disponibilidade</li>
+              <li>Capacity planning e cost optimization</li>
+              <li>Architecture Decision Records (ADRs)</li>
+              <li>Migração de sistemas legados</li>
+              <li>Segurança em arquiteturas cloud-native</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">📋</span> Gestão de Produto Tech
+            </div>
+            <ul class="topic-list">
+              <li>Product discovery: Jobs-to-be-Done</li>
+              <li>Roadmap técnico e priorização (RICE, MoSCoW)</li>
+              <li>Métricas de produto: DAU, retention, NPS</li>
+              <li>OKRs para times de engenharia</li>
+              <li>Gestão de stakeholders e comunicação técnica</li>
+              <li>Product-led growth (PLG) para SaaS técnico</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">📣</span> Marketing Técnico & Posicionamento
+            </div>
+            <ul class="topic-list">
+              <li>Personal branding para desenvolvedores</li>
+              <li>Developer marketing: tech blogs, talks, OSS</li>
+              <li>LinkedIn e GitHub como portfolio</li>
+              <li>SEO técnico e content marketing</li>
+              <li>Criação de demos e case studies</li>
+              <li>Precificação de APIs e serviços técnicos</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">🤖</span> Automações de Negócio com IA
+            </div>
+            <ul class="topic-list">
+              <li>Mapeamento de processos para automação</li>
+              <li>ROI de automação: como calcular e apresentar</li>
+              <li>n8n e Zapier para automações low-code</li>
+              <li>Integração de CRM com IA (HubSpot, Salesforce)</li>
+              <li>Automação de vendas e prospecção</li>
+              <li>BI automatizado com IA generativa</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">💼</span> Liderança Técnica
+            </div>
+            <ul class="topic-list">
+              <li>Staff+ engineering: scope e influência</li>
+              <li>Code review e cultura de qualidade</li>
+              <li>Mentoria e onboarding de devs</li>
+              <li>Comunicação com C-level</li>
+              <li>Estimativas e gestão de expectativas</li>
+              <li>Gestão de débito técnico</li>
+            </ul>
+          </div>
+          <div class="topic-group">
+            <div class="topic-group-title">
+              <span class="icon">💰</span> Monetização & Mercado
+            </div>
+            <ul class="topic-list">
+              <li>Modelos de negócio para APIs (Stripe, usage-based)</li>
+              <li>SaaS: churn, MRR, LTV e CAC</li>
+              <li>Freelancing e consultoria premium</li>
+              <li>Negociação salarial baseada em valor</li>
+              <li>Portfólio técnico estratégico</li>
+              <li>Entrevistas técnicas de alto nível</li>
+            </ul>
+          </div>
+        </div>
+        <div class="outcomes">
+          <div class="outcomes-title">Ao finalizar este módulo você será capaz de:</div>
+          <ul class="outcomes-list">
+            <li>Arquitetar soluções enterprise end-to-end</li>
+            <li>Gerenciar produtos e roadmaps técnicos</li>
+            <li>Monetizar APIs e serviços técnicos</li>
+            <li>Automatizar processos de negócio com IA</li>
+            <li>Posicionar-se como referência no mercado</li>
+            <li>Liderar times técnicos de alto desempenho</li>
+            <li>Negociar e fechar projetos de alto valor</li>
+          </ul>
+        </div>
+        <div class="pills">
+          <span class="pill">Product Management</span>
+          <span class="pill">OKRs</span>
+          <span class="pill">n8n</span>
+          <span class="pill">Stripe API</span>
+          <span class="pill">HubSpot</span>
+          <span class="pill">ADRs</span>
+          <span class="pill">PLG</span>
+          <span class="pill">Tech Marketing</span>
+          <span class="pill">SaaS Metrics</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /modules-grid -->
+</section>
+
+<!-- ──── TECH STACK ──── -->
+<div class="stack-section">
+  <div class="stack-inner">
+    <div class="section-label">Stack Tecnológica</div>
+    <div class="section-title">Tudo que você vai <span style="color:var(--accent1)">dominar</span></div>
+    <div class="stack-grid">
+      <div class="stack-item"><span class="s-icon">🐍</span><span class="s-name">Python 3.12</span><span class="s-cat">Core</span></div>
+      <div class="stack-item"><span class="s-icon">⚡</span><span class="s-name">FastAPI</span><span class="s-cat">API</span></div>
+      <div class="stack-item"><span class="s-icon">🐳</span><span class="s-name">Docker</span><span class="s-cat">DevOps</span></div>
+      <div class="stack-item"><span class="s-icon">🔴</span><span class="s-name">Redis</span><span class="s-cat">Cache/Streams</span></div>
+      <div class="stack-item"><span class="s-icon">🌿</span><span class="s-name">Celery</span><span class="s-cat">Async</span></div>
+      <div class="stack-item"><span class="s-icon">⛓️</span><span class="s-name">LangChain</span><span class="s-cat">AI</span></div>
+      <div class="stack-item"><span class="s-icon">🔀</span><span class="s-name">LangGraph</span><span class="s-cat">Agents</span></div>
+      <div class="stack-item"><span class="s-icon">🤖</span><span class="s-name">OpenAI GPT-4o</span><span class="s-cat">LLM</span></div>
+      <div class="stack-item"><span class="s-icon">🔍</span><span class="s-name">Qdrant</span><span class="s-cat">Vector DB</span></div>
+      <div class="stack-item"><span class="s-icon">🗄️</span><span class="s-name">SQL Server</span><span class="s-cat">Database</span></div>
+      <div class="stack-item"><span class="s-icon">📊</span><span class="s-name">Prometheus</span><span class="s-cat">Metrics</span></div>
+      <div class="stack-item"><span class="s-icon">📈</span><span class="s-name">Grafana</span><span class="s-cat">Dashboards</span></div>
+      <div class="stack-item"><span class="s-icon">🔬</span><span class="s-name">LangSmith</span><span class="s-cat">LLM Ops</span></div>
+      <div class="stack-item"><span class="s-icon">🧪</span><span class="s-name">RAGAS</span><span class="s-cat">RAG Eval</span></div>
+      <div class="stack-item"><span class="s-icon">📦</span><span class="s-name">SQLAlchemy</span><span class="s-cat">ORM</span></div>
+      <div class="stack-item"><span class="s-icon">✅</span><span class="s-name">Pydantic v2</span><span class="s-cat">Validation</span></div>
+      <div class="stack-item"><span class="s-icon">🌸</span><span class="s-name">Flower</span><span class="s-cat">Monitoring</span></div>
+      <div class="stack-item"><span class="s-icon">🔭</span><span class="s-name">OpenTelemetry</span><span class="s-cat">Tracing</span></div>
+      <div class="stack-item"><span class="s-icon">☁️</span><span class="s-name">S3 / MinIO</span><span class="s-cat">Storage</span></div>
+      <div class="stack-item"><span class="s-icon">⚙️</span><span class="s-name">n8n / Zapier</span><span class="s-cat">Automation</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ──── ROADMAP ──── -->
+<section>
+  <div class="section-label">Jornada de Aprendizado</div>
+  <div class="section-title">Cronograma <span style="color:var(--accent2)">recomendado</span></div>
+  <p class="section-desc">Dedicando 20h/semana, você pode concluir o curso em aproximadamente 12 meses — equivalente a uma pós-graduação.</p>
+  <div class="roadmap">
+    <div class="roadmap-step">
+      <div class="rs-num" style="color:var(--accent4)">1</div>
+      <div class="rs-title">Fundamentos</div>
+      <div class="rs-time">Meses 1–3 · 180h</div>
+    </div>
+    <div class="roadmap-step">
+      <div class="rs-num" style="color:var(--accent1)">2</div>
+      <div class="rs-title">Sistemas Robustos</div>
+      <div class="rs-time">Meses 4–6 · 240h</div>
+    </div>
+    <div class="roadmap-step">
+      <div class="rs-num" style="color:var(--accent2)">3</div>
+      <div class="rs-title">IA Aplicada</div>
+      <div class="rs-time">Meses 7–9 · 300h</div>
+    </div>
+    <div class="roadmap-step">
+      <div class="rs-num" style="color:var(--gold)">4</div>
+      <div class="rs-title">Mercado & Produto</div>
+      <div class="rs-time">Meses 10–12 · 240h</div>
+    </div>
+  </div>
+</section>
+
+<!-- ──── CTA ──── -->
+<div class="footer-cta">
+  <div class="cta-title">Pronto para<br><span style="color:var(--accent2)">começar?</span></div>
+  <p class="cta-sub">Este é o currículo. Agora vamos transformá-lo em conteúdo real — aulas, projetos, avaliações e certificado.</p>
+  <a href="#" class="cta-btn">🚀 Iniciar Módulo 1</a>
+  <p style="margin-top:2rem; font-size:0.7rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase">
+    960 horas · 70+ projetos práticos · Equivalente a pós-graduação
+  </p>
+</div>
+
+<script>
+  function toggleModule(id) {
+    const card = document.getElementById(id);
+    const body = document.getElementById(id + '-body');
+    card.classList.toggle('open');
+    if (body.classList.contains('open')) {
+      body.classList.remove('open');
+      body.style.display = 'none';
+    } else {
+      body.classList.add('open');
+      body.style.display = 'block';
+    }
+  }
+
+  // Animate on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.module-card, .stack-item, .roadmap-step').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
