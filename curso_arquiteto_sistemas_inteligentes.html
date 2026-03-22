@@ -1,0 +1,4832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASI — Arquiteto de Sistemas Inteligentes</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,wght@0,300;0,700;1,300;1,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════ */
+    :root {
+      --bg: #07090f;
+      --bg2: #0c0f1a;
+      --surface: #111520;
+      --surface2: #161b2b;
+      --border: rgba(255, 255, 255, 0.07);
+      --border2: rgba(255, 255, 255, 0.14);
+      --c1: #5cf0b0;
+      --c2: #6e7dff;
+      --c3: #ff6b6b;
+      --c4: #ffd166;
+      --c5: #00d4ff;
+      --text: #e8ecf7;
+      --text-soft: #cbd5e8;
+      --muted: #647198;
+      --muted2: #94a3c8;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Syne', system-ui, sans-serif;
+      --font-accent: 'Fraunces', Georgia, serif;
+      --font-mono: 'DM Mono', ui-monospace, 'Cascadia Code', monospace;
+      --leading-tight: 1.25;
+      --leading-body: 1.65;
+      --leading-relaxed: 1.75;
+      --measure: 65ch;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: var(--leading-body);
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    input,
+    select,
+    textarea {
+      font-family: var(--font-body);
+    }
+
+    .accent-italic {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text-soft);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    /* ════ SCROLLBAR ════ */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
+    }
+
+    /* ════ SCROLL PROGRESS ════ */
+    #scrollBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      z-index: 300;
+      background: linear-gradient(90deg, var(--c1), var(--c2), var(--c5));
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 0.1s;
+    }
+
+    /* ════ NAV ════ */
+    #nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      height: 56px;
+      background: rgba(7, 9, 15, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      gap: 1rem;
+    }
+
+    button.nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.1rem;
+      background: linear-gradient(90deg, var(--c1), var(--c2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      cursor: pointer;
+      flex-shrink: 0;
+      border: none;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .nav-center {
+      display: flex;
+      gap: 0;
+      align-items: center;
+    }
+
+    .nav-btn {
+      padding: 6px 12px;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      background: none;
+      border: none;
+      border-radius: 6px;
+      transition: color 0.2s;
+    }
+
+    .nav-btn:hover {
+      color: var(--text);
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-pill {
+      padding: 7px 16px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .nav-pill.outline {
+      background: none;
+      border: 1px solid var(--border2);
+      color: var(--text);
+    }
+
+    .nav-pill.outline:hover {
+      background: var(--surface);
+    }
+
+    .nav-pill.filled {
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: var(--bg);
+      font-family: var(--font-display);
+    }
+
+    .nav-pill.filled:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(92, 240, 176, 0.25);
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--muted2);
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--bg);
+    }
+
+    /* ════ PAGES ════ */
+    .page {
+      display: none;
+      min-height: 100vh;
+      padding-top: 56px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ════ HERO ════ */
+    #page-landing {
+      padding-top: 0;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 7rem 2rem 5rem;
+      text-align: center;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 20%, transparent 70%);
+    }
+
+    .hero-orb {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(110, 125, 255, 0.08) 0%, transparent 65%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 16px;
+      border: 1px solid rgba(92, 240, 176, 0.3);
+      border-radius: 100px;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--c1);
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--c1);
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.2
+      }
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 8vw, 6.5rem);
+      font-weight: 800;
+      line-height: 0.93;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .h1-line1 {
+      display: block;
+      color: var(--text);
+    }
+
+    .h1-line2 {
+      display: block;
+      background: linear-gradient(125deg, var(--c1), var(--c2) 45%, var(--c5));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+      color: var(--muted2);
+      max-width: min(560px, 90vw);
+      margin: 0 auto 2.5rem;
+      line-height: var(--leading-relaxed);
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 30px;
+      border-radius: 100px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: var(--bg);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(92, 240, 176, 0.25);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 30px;
+      border-radius: 100px;
+      border: 1px solid var(--border2);
+      color: var(--text);
+      background: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface);
+      border-color: var(--muted2);
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-top: 3.5rem;
+      animation: fadeUp 0.7s 0.4s ease both;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .stat-box {
+      flex: 1;
+      min-width: 120px;
+      padding: 1.2rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat-box:last-child {
+      border-right: none;
+    }
+
+    .snum {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--c1);
+      display: block;
+    }
+
+    .slbl {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ════ MODULES OVERVIEW (landing) ════ */
+    .modules-overview {
+      padding: 5rem 2rem;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.7rem;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 20px;
+      height: 1px;
+      background: var(--muted);
+    }
+
+    .sec-h {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: var(--leading-tight);
+      margin-bottom: 0.85rem;
+    }
+
+    .sec-p {
+      color: var(--muted2);
+      font-size: 1rem;
+      line-height: var(--leading-relaxed);
+      max-width: min(560px, 100%);
+      margin-bottom: 2.25rem;
+    }
+
+    .sec-p-wide {
+      max-width: min(70ch, 100%);
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .modules-grid .mod-preview {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .mod-preview {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mod-preview::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .mod-preview:hover {
+      transform: translateY(-3px);
+      border-color: var(--border2);
+    }
+
+    .mod-preview:hover::before {
+      opacity: 1;
+    }
+
+    .mp-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 800;
+      opacity: 0.08;
+      position: absolute;
+      top: 1rem;
+      right: 1.2rem;
+    }
+
+    .mp-level {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .mp-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .mp-desc {
+      font-size: 0.9rem;
+      color: var(--muted2);
+      line-height: var(--leading-relaxed);
+      margin-bottom: 1rem;
+    }
+
+    .mp-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mp-tag {
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .mod-m1 {
+      border-left: 3px solid var(--c1);
+    }
+
+    .mod-m1 .mp-level,
+    .mod-m1 .mp-num {
+      color: var(--c1);
+    }
+
+    .mod-m1 .mp-tag {
+      background: rgba(92, 240, 176, 0.1);
+      color: var(--c1);
+    }
+
+    .mod-m2 {
+      border-left: 3px solid var(--c5);
+    }
+
+    .mod-m2 .mp-level,
+    .mod-m2 .mp-num {
+      color: var(--c5);
+    }
+
+    .mod-m2 .mp-tag {
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--c5);
+    }
+
+    .mod-m3 {
+      border-left: 3px solid var(--c2);
+    }
+
+    .mod-m3 .mp-level,
+    .mod-m3 .mp-num {
+      color: var(--c2);
+    }
+
+    .mod-m3 .mp-tag {
+      background: rgba(110, 125, 255, 0.1);
+      color: var(--c2);
+    }
+
+    .mod-m4 {
+      border-left: 3px solid var(--c4);
+    }
+
+    .mod-m4 .mp-level,
+    .mod-m4 .mp-num {
+      color: var(--c4);
+    }
+
+    .mod-m4 .mp-tag {
+      background: rgba(255, 209, 102, 0.1);
+      color: var(--c4);
+    }
+
+    .mod-preview.is-open {
+      border-color: var(--border2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .mod-preview-header {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: inherit;
+      padding: 1.5rem;
+      position: relative;
+      display: block;
+      font: inherit;
+    }
+
+    .mod-preview-header:focus-visible {
+      outline: 2px solid var(--c2);
+      outline-offset: 2px;
+      border-radius: var(--radius-lg);
+    }
+
+    .mod-preview-body {
+      padding: 0 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .mod-preview.is-open .mod-preview-body {
+      display: block;
+    }
+
+    .mod-expand-hint {
+      display: block;
+      margin-top: 0.85rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c2);
+    }
+
+    .mod-long-desc {
+      font-size: 0.92rem;
+      color: var(--text-soft);
+      line-height: var(--leading-relaxed);
+      margin-bottom: 0.5rem;
+    }
+
+    .mod-h4 {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin: 1.1rem 0 0.45rem;
+      color: var(--text);
+    }
+
+    .mod-outcomes {
+      margin: 0 0 0.9rem 1.15rem;
+      font-size: 0.88rem;
+      color: var(--muted2);
+      line-height: var(--leading-relaxed);
+    }
+
+    .mod-lesson-plan {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: min(60vh, 420px);
+      overflow-y: auto;
+    }
+
+    .mod-lp-item {
+      display: flex;
+      gap: 10px;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .mod-lp-item:last-child {
+      border-bottom: none;
+    }
+
+    .mod-lp-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--muted2);
+    }
+
+    .mod-lp-title {
+      display: block;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.76rem;
+    }
+
+    .mod-lp-meta {
+      font-size: 0.62rem;
+      color: var(--muted);
+    }
+
+    .mod-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .guest-banner {
+      background: rgba(110, 125, 255, 0.08);
+      border: 1px solid rgba(110, 125, 255, 0.25);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      font-size: 0.72rem;
+      color: var(--muted2);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+
+    .guest-banner strong {
+      color: var(--c2);
+    }
+
+    .guest-banner-btn {
+      display: inline;
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--c1);
+      text-decoration: underline;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .guest-banner-btn:hover {
+      color: var(--c5);
+    }
+
+    /* ════ TESTIMONIALS (landing) ════ */
+    .testimonials-section {
+      padding: 5rem 2rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .testi-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 2.5rem;
+    }
+
+    .testi-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+    }
+
+    .testi-stars {
+      color: var(--c4);
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .testi-text {
+      font-size: 0.92rem;
+      color: var(--muted2);
+      line-height: var(--leading-relaxed);
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .testi-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--c2), var(--c5));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--bg);
+    }
+
+    .testi-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .testi-name {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .testi-role {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* ════ FOOTER ════ */
+    .site-footer {
+      padding: 2.5rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ════ AUTH PAGES ════ */
+    .auth-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .auth-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-logo span {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.5rem;
+      background: linear-gradient(90deg, var(--c1), var(--c2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .auth-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      text-align: center;
+    }
+
+    .auth-sub {
+      font-size: 0.75rem;
+      color: var(--muted2);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--c2);
+    }
+
+    .form-input::placeholder {
+      color: var(--muted);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      outline: none;
+      appearance: none;
+    }
+
+    .form-select option {
+      background: var(--bg2);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: var(--bg);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      border: none;
+      margin-top: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(92, 240, 176, 0.2);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--muted2);
+    }
+
+    .auth-link {
+      color: var(--c2);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .auth-link:hover {
+      color: var(--c1);
+    }
+
+    .form-error {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      color: var(--c3);
+      margin-bottom: 1rem;
+    }
+
+    .form-success {
+      background: rgba(92, 240, 176, 0.1);
+      border: 1px solid rgba(92, 240, 176, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      color: var(--c1);
+      margin-bottom: 1rem;
+    }
+
+    .admin-hint {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1rem;
+      padding: 8px;
+      background: var(--bg2);
+      border-radius: 6px;
+    }
+
+    /* ════ DASHBOARD ════ */
+    .dash-wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .dash-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+
+    .dash-greeting {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+    }
+
+    .dash-sub {
+      font-size: 0.9rem;
+      color: var(--muted2);
+      margin-top: 0.4rem;
+      line-height: var(--leading-relaxed);
+    }
+
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 2.5rem;
+    }
+
+    .dstat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .dstat-n {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--c1);
+      display: block;
+    }
+
+    .dstat-l {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .dash-section-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .module-cards-dash {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 2.5rem;
+    }
+
+    .mc-dash {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .mc-dash:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .mc-dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .mc-dash-num {
+      font-family: var(--font-display);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 0.6rem;
+    }
+
+    .mc-dash-pct {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .mc-dash-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .mc-dash-desc {
+      font-size: 0.72rem;
+      color: var(--muted2);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s;
+    }
+
+    .mc-dash-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.8rem;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* ════ MODULE PAGE ════ */
+    .mod-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    button.mod-back,
+    .mod-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--muted2);
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      text-align: left;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .mod-back:hover {
+      color: var(--text);
+    }
+
+    .mod-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mod-hero-num {
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-display);
+      font-size: 6rem;
+      font-weight: 800;
+      opacity: 0.05;
+    }
+
+    .mod-level {
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .mod-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+
+    .mod-description {
+      font-size: 0.8rem;
+      color: var(--muted2);
+      line-height: 1.8;
+      max-width: 600px;
+      margin-bottom: 1.2rem;
+    }
+
+    .mod-progress-wrap {
+      margin-top: 1rem;
+    }
+
+    .mod-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .lessons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lesson-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lesson-item:hover {
+      border-color: var(--border2);
+      background: var(--surface2);
+    }
+
+    .lesson-item.completed {
+      border-color: rgba(92, 240, 176, 0.2);
+    }
+
+    .lesson-check {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .lesson-item.completed .lesson-check {
+      background: rgba(92, 240, 176, 0.15);
+      border-color: var(--c1);
+      color: var(--c1);
+    }
+
+    .lesson-info {
+      flex: 1;
+    }
+
+    .lesson-title {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .lesson-meta {
+      font-size: 0.67rem;
+      color: var(--muted);
+    }
+
+    .lesson-type {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .type-video {
+      background: rgba(110, 125, 255, 0.1);
+      color: var(--c2);
+    }
+
+    .type-text {
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--c5);
+    }
+
+    .type-quiz {
+      background: rgba(255, 209, 102, 0.1);
+      color: var(--c4);
+    }
+
+    .mod-quiz-btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 2px solid var(--c4);
+      background: rgba(255, 209, 102, 0.05);
+      color: var(--c4);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+
+    .mod-quiz-btn:hover {
+      background: rgba(255, 209, 102, 0.1);
+    }
+
+    .mod-quiz-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ════ LESSON PAGE ════ */
+    .lesson-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    button.lesson-back,
+    .lesson-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--muted2);
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      text-align: left;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .lesson-back:hover {
+      color: var(--text);
+    }
+
+    .lesson-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .lesson-breadcrumb {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .lesson-h {
+      font-family: var(--font-display);
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+
+    .lesson-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.7rem;
+      color: var(--muted2);
+    }
+
+    .video-container {
+      background: #000;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      padding-bottom: 56.25%;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .lesson-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 2rem 2.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .lc h2 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 1.75rem 0 0.85rem;
+      color: var(--c1);
+      line-height: var(--leading-tight);
+    }
+
+    .lc h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1.35rem 0 0.65rem;
+      color: var(--text-soft);
+      line-height: var(--leading-tight);
+    }
+
+    .lc p {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      line-height: var(--leading-relaxed);
+      margin-bottom: 1rem;
+      max-width: var(--measure);
+    }
+
+    .lc code {
+      background: var(--bg2);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      color: var(--c1);
+      font-family: var(--font-mono);
+    }
+
+    .lc pre {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      max-width: 100%;
+    }
+
+    .lc pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+      font-size: 0.84rem;
+      line-height: 1.72;
+    }
+
+    .lc ul,
+    .lc ol {
+      padding-left: 1.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .lc li {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      line-height: var(--leading-relaxed);
+      margin-bottom: 0.4rem;
+    }
+
+    .lc .highlight-box {
+      background: rgba(110, 125, 255, 0.07);
+      border-left: 3px solid var(--c2);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .lc .tip-box {
+      background: rgba(92, 240, 176, 0.07);
+      border-left: 3px solid var(--c1);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .lc .warn-box {
+      background: rgba(255, 209, 102, 0.07);
+      border-left: 3px solid var(--c4);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .lesson-nav {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+
+    .btn-lesson-nav {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--border2);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+      max-width: 200px;
+    }
+
+    .btn-lesson-nav:hover {
+      background: var(--surface2);
+      border-color: var(--muted2);
+    }
+
+    .btn-complete {
+      flex: 2;
+      padding: 12px;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: var(--bg);
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-complete:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(92, 240, 176, 0.2);
+    }
+
+    .btn-complete.done {
+      background: rgba(92, 240, 176, 0.15);
+      color: var(--c1);
+      border: 1px solid rgba(92, 240, 176, 0.3);
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ════ QUIZ ════ */
+    .quiz-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .quiz-header {
+      margin-bottom: 2rem;
+    }
+
+    .quiz-h {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .quiz-sub {
+      font-size: 0.78rem;
+      color: var(--muted2);
+    }
+
+    .quiz-progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 1.5px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--c2), var(--c1));
+      border-radius: 1.5px;
+      transition: width 0.4s;
+    }
+
+    .quiz-question {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .qq-num {
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .qq-text {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-opt {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      background: var(--bg2);
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-align: left;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .quiz-opt:hover {
+      border-color: var(--c2);
+      background: rgba(110, 125, 255, 0.07);
+    }
+
+    .quiz-opt.selected {
+      border-color: var(--c2);
+      background: rgba(110, 125, 255, 0.1);
+      color: var(--c2);
+    }
+
+    .quiz-opt.correct {
+      border-color: var(--c1);
+      background: rgba(92, 240, 176, 0.1);
+      color: var(--c1);
+    }
+
+    .quiz-opt.wrong {
+      border-color: var(--c3);
+      background: rgba(255, 107, 107, 0.1);
+      color: var(--c3);
+    }
+
+    .quiz-feedback {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      margin-top: 0.8rem;
+      display: none;
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.ok {
+      background: rgba(92, 240, 176, 0.1);
+      color: var(--c1);
+      border: 1px solid rgba(92, 240, 176, 0.2);
+    }
+
+    .quiz-feedback.fail {
+      background: rgba(255, 107, 107, 0.1);
+      color: var(--c3);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+
+    .quiz-controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+
+    .btn-quiz-next {
+      padding: 11px 24px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--c2), var(--c1));
+      color: var(--bg);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-quiz-next:hover {
+      transform: translateY(-1px);
+    }
+
+    .quiz-result {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .qr-score {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .qr-label {
+      font-size: 0.85rem;
+      color: var(--muted2);
+      margin-bottom: 2rem;
+    }
+
+    .qr-grade {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    /* ════ TESTIMONIALS PAGE ════ */
+    .testi-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .testi-form-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.15s;
+      opacity: 0.3;
+    }
+
+    .star-btn:hover,
+    .star-btn.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border2);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: var(--c2);
+      background: rgba(110, 125, 255, 0.05);
+    }
+
+    .upload-area p {
+      font-size: 0.75rem;
+      color: var(--muted2);
+    }
+
+    #imagePreview {
+      display: none;
+      margin-top: 0.8rem;
+    }
+
+    #imagePreview img {
+      max-height: 120px;
+      border-radius: 8px;
+    }
+
+    /* ════ ADMIN ════ */
+    .admin-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .admin-header {
+      margin-bottom: 2rem;
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .atab {
+      padding: 10px 18px;
+      background: none;
+      border: none;
+      color: var(--muted2);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-family: var(--font-body);
+      font-weight: 600;
+    }
+
+    .atab.active {
+      color: var(--c2);
+      border-bottom-color: var(--c2);
+    }
+
+    .atab:hover {
+      color: var(--text);
+    }
+
+    .admin-panel {
+      display: none;
+    }
+
+    .admin-panel.active {
+      display: block;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .admin-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .admin-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted2);
+    }
+
+    .admin-table tr:hover td {
+      background: var(--surface);
+    }
+
+    .admin-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.62rem;
+      font-weight: 600;
+    }
+
+    .badge-admin {
+      background: rgba(255, 209, 102, 0.15);
+      color: var(--c4);
+    }
+
+    .badge-user {
+      background: rgba(110, 125, 255, 0.12);
+      color: var(--c2);
+    }
+
+    .admin-action-btn {
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: none;
+      color: var(--muted2);
+      font-family: var(--font-body);
+      transition: all 0.2s;
+    }
+
+    .admin-action-btn:hover {
+      color: var(--c3);
+      border-color: var(--c3);
+    }
+
+    .admin-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .astat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .astat-n {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--c2);
+      display: block;
+    }
+
+    .astat-l {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ════ MODAL ════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 400;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ════ TOAST ════ */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 100px;
+      padding: 10px 20px;
+      font-size: 0.78rem;
+      z-index: 500;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      white-space: normal;
+      max-width: min(90vw, 28rem);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.ok {
+      border-color: rgba(92, 240, 176, 0.4);
+      color: var(--c1);
+    }
+
+    #toast.err {
+      border-color: rgba(255, 107, 107, 0.4);
+      color: var(--c3);
+    }
+
+    /* ════ UTILITY ════ */
+    .hidden {
+      display: none !important;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s, transform 0.5s;
+    }
+
+    .reveal.vis {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 600;
+    }
+
+    .skip-link:focus {
+      left: 1rem;
+      top: 1rem;
+      width: auto;
+      height: auto;
+      padding: 0.65rem 1.1rem;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.8125rem;
+      font-family: var(--font-body);
+    }
+
+    .methodology-section {
+      padding: 4.5rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .method-inner {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .method-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem 1.25rem;
+      margin-top: 2rem;
+      list-style: none;
+      padding: 0;
+      counter-reset: method;
+    }
+
+    .method-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.15rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .method-step:hover {
+      border-color: var(--border2);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+    }
+
+    .method-step-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(92, 240, 176, 0.2), rgba(110, 125, 255, 0.2));
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--c1);
+    }
+
+    .method-step-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0 0 0.35rem;
+      color: var(--text);
+    }
+
+    .method-step-desc {
+      font-size: 0.88rem;
+      color: var(--muted2);
+      line-height: var(--leading-relaxed);
+      margin: 0;
+    }
+
+    .dash-learning-note {
+      font-size: 0.88rem;
+      color: var(--muted2);
+      line-height: var(--leading-relaxed);
+      max-width: 62ch;
+      margin: -0.5rem 0 1.75rem;
+      padding: 0.85rem 1rem;
+      background: rgba(110, 125, 255, 0.06);
+      border-left: 3px solid var(--c2);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .stack-section {
+      padding: 4rem 2rem 5rem;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+    }
+
+    .stack-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .stack-grid li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      font-size: 0.72rem;
+      color: var(--muted2);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .page-main {
+      min-height: calc(100vh - 56px);
+    }
+
+    button.upload-area {
+      font: inherit;
+      width: 100%;
+      background: transparent;
+      color: inherit;
+    }
+
+    .auth-link-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--c2);
+      cursor: pointer;
+      font-size: inherit;
+      font-family: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .auth-link-btn:hover {
+      color: var(--c1);
+    }
+
+    @media(max-width:960px) {
+      .hero {
+        padding: 5.5rem 1.25rem 4rem;
+      }
+
+      .modules-overview,
+      .testimonials-section,
+      .stack-section,
+      .methodology-section {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+
+      .dash-wrap,
+      .mod-wrap,
+      .lesson-wrap,
+      .quiz-wrap,
+      .testi-page,
+      .admin-wrap {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+    }
+
+    @media(max-width:640px) {
+      .nav-center {
+        display: none;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-track {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stats-row {
+        flex-direction: column;
+      }
+
+      #nav {
+        padding: 0 1rem;
+      }
+
+      .hero-sub {
+        font-size: 0.95rem;
+      }
+
+      .btn-main,
+      .btn-ghost {
+        padding: 12px 22px;
+        font-size: 0.72rem;
+      }
+    }
+
+    @media(max-width:400px) {
+      .stat-box {
+        min-width: 100%;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .stat-box:last-child {
+        border-bottom: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .hero-badge,
+      .hero h1,
+      .hero-sub,
+      .hero-ctas,
+      .stats-row,
+      .reveal {
+        animation: none !important;
+      }
+
+      .live-dot {
+        animation: none !important;
+      }
+
+      .reveal {
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      #toast {
+        transition: opacity 0.15s !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <a href="#" class="skip-link" onclick="focusActiveMain(event); return false;">Pular para o conteúdo</a>
+
+  <div id="scrollBar" aria-hidden="true"></div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ═══ NAV ═══ -->
+  <nav id="nav" aria-label="Principal">
+    <button type="button" class="nav-logo" onclick="goHome()" aria-label="ASI — Ir para o início">ASI</button>
+    <div class="nav-center" id="navCenter">
+      <button class="nav-btn" onclick="navTo('metodologia')">Metodologia</button>
+      <button class="nav-btn" onclick="navTo('modulos')">Módulos</button>
+      <button class="nav-btn" onclick="navTo('stack')">Stack</button>
+      <button class="nav-btn" onclick="navTo('testemunhos')">Depoimentos</button>
+    </div>
+    <div class="nav-right" id="navRight">
+      <button class="nav-pill outline" onclick="showPage('login')">Entrar</button>
+      <button class="nav-pill filled" onclick="showPage('register')">Inscrever-se</button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: LANDING
+═══════════════════════════════════════ -->
+  <div id="page-landing" class="page active">
+    <main class="page-main landing-main" tabindex="-1">
+      <!-- Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="hero-orb" aria-hidden="true"></div>
+        <div class="hero-inner">
+          <div class="hero-badge"><span class="live-dot" aria-hidden="true"></span> Pós-Graduação Tecnológica · 4
+            Módulos · 960h</div>
+          <h1 id="hero-title">
+            <span class="h1-line1">Arquiteto de</span>
+            <span class="h1-line2">Sistemas Inteligentes</span>
+          </h1>
+          <p class="hero-sub">Do Python básico à IA em produção. APIs robustas, pipelines RAG, gestão de produto e
+            posicionamento de mercado — tudo em um curso.</p>
+          <div class="hero-ctas">
+            <button type="button" class="btn-main" onclick="showPage('register')">▶ Inscrever-se grátis</button>
+            <button type="button" class="btn-ghost" onclick="scrollToId('metodologia')">Como funciona →</button>
+          </div>
+          <div class="stats-row">
+            <div class="stat-box"><span class="snum">4</span><span class="slbl">Módulos</span></div>
+            <div class="stat-box"><span class="snum">960h</span><span class="slbl">Conteúdo</span></div>
+            <div class="stat-box"><span class="snum">48+</span><span class="slbl">Projetos</span></div>
+            <div class="stat-box"><span class="snum">12+</span><span class="slbl">Tecnologias</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="methodology-section" id="metodologia" aria-labelledby="method-heading">
+        <div class="method-inner">
+          <div class="eyebrow">Metodologia</div>
+          <h2 id="method-heading" class="sec-h">Aprendizado em <em class="accent-italic">quatro camadas</em></h2>
+          <p class="sec-p sec-p-wide">Cada aula segue um ciclo pedagógico claro: primeiro o contexto e o “por quê”,
+            depois demonstração prática, aprofundamento com material de apoio e, quando fizer sentido, exercício ou
+            avaliação para consolidar. Os quatro módulos são progressivos — você só avança quando a base anterior
+            estiver sólida.</p>
+          <ol class="method-steps" role="list">
+            <li class="method-step">
+              <span class="method-step-num" aria-hidden="true">1</span>
+              <div>
+                <h3 class="method-step-title">Conceitos e contexto</h3>
+                <p class="method-step-desc">Vídeo e narrativa alinhando o problema de negócio, vocabulário e objetivos
+                  de aprendizagem.</p>
+              </div>
+            </li>
+            <li class="method-step">
+              <span class="method-step-num" aria-hidden="true">2</span>
+              <div>
+                <h3 class="method-step-title">Prática guiada</h3>
+                <p class="method-step-desc">Código, diagramas e exemplos reais para você ver como a ferramenta se
+                  comporta no dia a dia.</p>
+              </div>
+            </li>
+            <li class="method-step">
+              <span class="method-step-num" aria-hidden="true">3</span>
+              <div>
+                <h3 class="method-step-title">Aprofundamento</h3>
+                <p class="method-step-desc">Leitura complementar, boas práticas e armadilhas comuns — para ir além do
+                  tutorial.</p>
+              </div>
+            </li>
+            <li class="method-step">
+              <span class="method-step-num" aria-hidden="true">4</span>
+              <div>
+                <h3 class="method-step-title">Consolidação</h3>
+                <p class="method-step-desc">Marcação de progresso, avaliação por módulo e revisão — o que você aprendeu
+                  fica mensurável.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Modules Overview -->
+      <section class="modules-overview" id="modulos">
+        <div class="eyebrow">Trilha de Aprendizado</div>
+        <h2 class="sec-h">4 módulos que te<br><em class="accent-italic">transformam no mercado</em></h2>
+        <p class="sec-p">Trilha progressiva: fundamentos → sistemas escaláveis → IA aplicada → produto e liderança.
+          Toque em um módulo para ver a ementa completa, objetivos e lista de aulas — sem precisar criar conta.</p>
+        <div class="modules-grid" id="landingModulesGrid"></div>
+      </section>
+
+      <section class="stack-section" id="stack" aria-labelledby="stack-heading">
+        <div class="stack-inner">
+          <div class="eyebrow">Stack tecnológica</div>
+          <h2 id="stack-heading" class="sec-h">Ferramentas que você<br><em class="accent-italic">usa no mercado</em>
+          </h2>
+          <p class="sec-p">Python assíncrono, APIs modernas, containers, dados e IA aplicada — alinhado ao que empresas
+            exigem hoje.</p>
+          <ul class="stack-grid" role="list">
+            <li>Python · asyncio</li>
+            <li>FastAPI · Pydantic</li>
+            <li>Docker · CI/CD</li>
+            <li>PostgreSQL · Redis</li>
+            <li>LangChain · RAG</li>
+            <li>Kubernetes · Cloud</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="testimonials-section" id="testemunhos">
+        <div class="testi-inner">
+          <div class="eyebrow">Depoimentos</div>
+          <h2 class="sec-h">O que dizem os<br><em class="accent-italic">alunos</em></h2>
+          <div class="testi-grid" id="landingTestiGrid"></div>
+          <div style="text-align:center;margin-top:2rem;">
+            <button type="button" class="btn-ghost" onclick="showPage('testimonials')">Ver todos os depoimentos
+              →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer CTA -->
+      <section
+        style="padding:5rem 2rem;text-align:center;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(110,125,255,0.08) 0%,transparent 65%);border-top:1px solid var(--border);">
+        <h2
+          style="font-family:var(--font-display);font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:1rem;">
+          Pronto para começar?</h2>
+        <p
+          style="color:var(--muted2);font-size:1rem;max-width:28rem;margin:0 auto 2rem;line-height:1.75;font-family:var(--font-body);">
+          Crie sua conta gratuitamente e comece a construir sua trilha hoje mesmo.</p>
+        <button type="button" class="btn-main" onclick="showPage('register')">Criar conta grátis →</button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2025 ASI — Arquiteto de Sistemas Inteligentes. Todos os direitos reservados.</p>
+    </footer>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: REGISTER
+═══════════════════════════════════════ -->
+  <div id="page-register" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="auth-wrap">
+        <div class="auth-box">
+          <div class="auth-logo"><span>ASI</span></div>
+          <h2 class="auth-title">Criar sua conta</h2>
+          <p class="auth-sub">Comece sua jornada como Arquiteto de Sistemas Inteligentes</p>
+          <div id="registerError" class="form-error hidden" role="alert" aria-live="polite"></div>
+          <div id="registerSuccess" class="form-success hidden" role="status" aria-live="polite"></div>
+          <form id="form-register" onsubmit="event.preventDefault(); doRegister();" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="reg-name">Nome completo</label>
+                <input type="text" id="reg-name" name="name" class="form-input" placeholder="Seu nome"
+                  autocomplete="name" required minlength="2" maxlength="120">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-dob">Data de nascimento</label>
+                <input type="date" id="reg-dob" name="dob" class="form-input" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-email">E-mail</label>
+              <input type="email" id="reg-email" name="email" class="form-input" placeholder="seu@email.com"
+                autocomplete="email" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="reg-city">Cidade de origem</label>
+                <input type="text" id="reg-city" name="city" class="form-input" placeholder="Ex: São Paulo"
+                  autocomplete="address-level2" required maxlength="120">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-profession">Profissão</label>
+                <select id="reg-profession" name="profession" class="form-select form-input" required>
+                  <option value="">Selecione...</option>
+                  <option>Desenvolvedor(a)</option>
+                  <option>Estudante</option>
+                  <option>Analista de Dados</option>
+                  <option>Gerente de Produto</option>
+                  <option>DevOps / SRE</option>
+                  <option>Empreendedor(a)</option>
+                  <option>Professor(a)</option>
+                  <option>Outra</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit">Criar conta grátis →</button>
+          </form>
+          <div class="auth-switch">Já tem conta? <button type="button" class="auth-link-btn"
+              onclick="showPage('login')">Fazer login</button></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: LOGIN
+═══════════════════════════════════════ -->
+  <div id="page-login" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="auth-wrap">
+        <div class="auth-box">
+          <div class="auth-logo"><span>ASI</span></div>
+          <h2 class="auth-title">Bem-vindo de volta</h2>
+          <p class="auth-sub">Entre com seu e-mail e data de nascimento</p>
+          <div id="loginError" class="form-error hidden" role="alert" aria-live="polite"></div>
+          <form id="form-login" onsubmit="event.preventDefault(); doLogin();" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="login-email">E-mail</label>
+              <input type="email" id="login-email" name="email" class="form-input" placeholder="seu@email.com"
+                autocomplete="username">
+            </div>
+            <div class="form-group" id="loginDobGroup">
+              <label class="form-label" for="login-dob">Data de nascimento</label>
+              <input type="date" id="login-dob" name="dob" class="form-input" autocomplete="bday">
+            </div>
+            <div class="form-group hidden" id="loginKeyGroup">
+              <label class="form-label" for="login-key">Chave de administrador</label>
+              <input type="password" id="login-key" name="adminkey" class="form-input" placeholder="Chave secreta"
+                autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-submit">Entrar →</button>
+          </form>
+          <div class="auth-switch">Não tem conta? <button type="button" class="auth-link-btn"
+              onclick="showPage('register')">Criar conta grátis</button></div>
+          <div class="admin-hint">Admin: insira o e-mail admin para ver o campo de chave secreta</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: DASHBOARD
+═══════════════════════════════════════ -->
+  <div id="page-dashboard" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="dash-wrap">
+        <div class="dash-header">
+          <div>
+            <div class="dash-greeting" id="dashGreeting">Olá, Aluno! 👋</div>
+            <div class="dash-sub" id="dashSub">Continue de onde parou</div>
+          </div>
+          <button type="button" class="btn-ghost" style="padding:8px 18px;font-size:0.72rem;"
+            onclick="showPage('testimonials')">✍ Deixar depoimento</button>
+        </div>
+        <p class="dash-learning-note">Trilha recomendada: siga os módulos na ordem (1 → 4). Cada um reforça o anterior —
+          conceitos, prática, aprofundamento e avaliação por módulo.</p>
+        <div class="dash-stats" id="dashStats"></div>
+        <div class="dash-section-title">Meus Módulos</div>
+        <div class="module-cards-dash" id="dashModules"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: MODULE
+═══════════════════════════════════════ -->
+  <div id="page-module" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="mod-wrap">
+        <button type="button" class="mod-back" onclick="backFromModule()">← Voltar</button>
+        <div class="mod-hero" id="modHero"></div>
+        <div class="dash-section-title" style="margin-top:1.5rem;">Aulas</div>
+        <div class="lessons-list" id="lessonsList"></div>
+        <button type="button" class="mod-quiz-btn" id="modQuizBtn" onclick="startQuiz()">📝 Fazer avaliação do
+          módulo</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: LESSON
+═══════════════════════════════════════ -->
+  <div id="page-lesson" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="lesson-wrap">
+        <button type="button" class="lesson-back" id="lessonBackBtn" onclick="backToModule()">← Voltar ao
+          módulo</button>
+        <div class="lesson-header" id="lessonHeader"></div>
+        <div id="lessonVideoWrap"></div>
+        <div class="lesson-content lc" id="lessonContent"></div>
+        <div class="lesson-nav" id="lessonNav"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: QUIZ
+═══════════════════════════════════════ -->
+  <div id="page-quiz" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="quiz-wrap">
+        <button type="button" class="mod-back" onclick="showPage('module')">← Voltar ao módulo</button>
+        <div class="quiz-header">
+          <div class="quiz-h" id="quizTitle">Avaliação</div>
+          <div class="quiz-sub" id="quizSub">Responda todas as questões</div>
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="quizBody"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: TESTIMONIALS
+═══════════════════════════════════════ -->
+  <div id="page-testimonials" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="testi-page">
+        <button type="button" class="mod-back" onclick="goBack()">← Voltar</button>
+        <div class="eyebrow">Comunidade</div>
+        <h2 class="sec-h" style="margin-bottom:2rem;">Depoimentos dos alunos</h2>
+
+        <!-- Submit form (only if logged in) -->
+        <div id="testiFormWrap" class="hidden">
+          <div class="testi-form-box">
+            <div class="dash-section-title">Compartilhe sua experiência</div>
+            <div id="testiFormMsg" class="hidden"></div>
+            <div class="form-group">
+              <label class="form-label" id="rating-label">Avaliação</label>
+              <div class="rating-stars" id="ratingStars" role="group" aria-labelledby="rating-label"
+                aria-label="Nota de 1 a 5 estrelas">
+                <button type="button" class="star-btn" aria-pressed="false" onclick="setRating(1)"><span
+                    aria-hidden="true">⭐</span> <span class="sr-only">1 estrela</span></button>
+                <button type="button" class="star-btn" aria-pressed="false" onclick="setRating(2)"><span
+                    aria-hidden="true">⭐</span> <span class="sr-only">2 estrelas</span></button>
+                <button type="button" class="star-btn" aria-pressed="false" onclick="setRating(3)"><span
+                    aria-hidden="true">⭐</span> <span class="sr-only">3 estrelas</span></button>
+                <button type="button" class="star-btn" aria-pressed="false" onclick="setRating(4)"><span
+                    aria-hidden="true">⭐</span> <span class="sr-only">4 estrelas</span></button>
+                <button type="button" class="star-btn" aria-pressed="true" onclick="setRating(5)"><span
+                    aria-hidden="true">⭐</span> <span class="sr-only">5 estrelas</span></button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testiText">Depoimento</label>
+              <textarea id="testiText" class="form-input" name="testimonial" rows="4"
+                placeholder="Conte sua experiência com o curso..." required minlength="20"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testiImg">Foto (opcional)</label>
+              <button type="button" class="upload-area" onclick="document.getElementById('testiImg').click()">
+                <p>📎 Clique para anexar uma imagem</p>
+                <p style="font-size:0.65rem;margin-top:4px;color:var(--muted);">JPG, PNG até 2MB</p>
+              </button>
+              <input type="file" id="testiImg" accept="image/*" class="hidden" onchange="previewImage(event)">
+              <div id="imagePreview"><img id="previewImg" src="" alt="Pré-visualização da foto"></div>
+            </div>
+            <button type="button" class="btn-submit" style="width:auto;padding:11px 28px;"
+              onclick="submitTestimonial()">Publicar depoimento →</button>
+          </div>
+        </div>
+
+        <div id="allTestisGrid" class="testi-grid"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+     PAGE: ADMIN
+═══════════════════════════════════════ -->
+  <div id="page-admin" class="page">
+    <main class="page-main" tabindex="-1">
+      <div class="admin-wrap">
+        <div class="admin-header">
+          <div style="display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap;">
+            <div>
+              <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:0.3rem;">Painel
+                de Administração</h2>
+              <div style="font-size:0.72rem;color:var(--muted2);">ASI — Gestão da plataforma</div>
+            </div>
+            <button type="button" class="btn-ghost" style="font-size:0.72rem;padding:8px 16px;"
+              onclick="doLogout()">Sair</button>
+          </div>
+        </div>
+        <div class="admin-stat-grid" id="adminStats"></div>
+        <div class="admin-tabs" role="tablist" aria-label="Seções do painel">
+          <button type="button" role="tab" class="atab active" aria-selected="true"
+            onclick="switchAdminTab(event,'users')">👥 Usuários</button>
+          <button type="button" role="tab" class="atab" aria-selected="false"
+            onclick="switchAdminTab(event,'progress')">📊 Progresso</button>
+          <button type="button" role="tab" class="atab" aria-selected="false"
+            onclick="switchAdminTab(event,'testimonials')">💬 Depoimentos</button>
+          <button type="button" role="tab" class="atab" aria-selected="false"
+            onclick="switchAdminTab(event,'settings')">⚙️ Configurações</button>
+        </div>
+        <div id="admin-panel-users" class="admin-panel active"></div>
+        <div id="admin-panel-progress" class="admin-panel"></div>
+        <div id="admin-panel-testimonials" class="admin-panel"></div>
+        <div id="admin-panel-settings" class="admin-panel"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════════
+    //  CONSTANTS
+    // ══════════════════════════════════════════════════════════
+    const ADMIN_EMAIL = 'admin@asi.com.br';
+    const ADMIN_KEY = 'ASI@Master2024';
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function escapeHtmlAttr(s) {
+      return escapeHtml(s).replace(/'/g, '&#39;');
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  COURSE DATA
+    // ══════════════════════════════════════════════════════════
+    const MODULES_DATA = [
+      {
+        id: 1, color: '#5cf0b0', colorClass: 'mod-m1',
+        level: 'Módulo 1 · Iniciante',
+        title: 'Fundamentos do Ecossistema Moderno',
+        desc: 'Python avançado, Docker, Pydantic, SQLAlchemy, testes automatizados e CI/CD — a base de todo sistema sólido.',
+        hours: 180, tags: ['Iniciante', '180h'],
+        icon: '🌱',
+        longDesc: 'Você constrói uma base sólida em Python moderno, empacotamento de aplicações, modelagem de dados e entrega contínua. Ideal para sair de scripts isolados e entregar projetos com padrão de mercado.',
+        outcomes: [
+          'Dominar asyncio e I/O concorrente para APIs e integrações.',
+          'Containerizar com Docker e orquestrar serviços com Compose.',
+          'Validar dados com Pydantic v2 e persistir com SQLAlchemy 2.0 + Alembic.',
+          'Garantir qualidade com pytest e pipelines CI/CD.'
+        ],
+        lessons: [
+          {
+            id: '1-1', title: 'Python Assíncrono com asyncio',
+            type: 'video', duration: '52min',
+            videoId: 't5Bo1Je9EmE',
+            content: `
+<h2>Python Assíncrono com asyncio</h2>
+<p>Programação assíncrona é o coração de sistemas modernos de alta performance. Com <code>asyncio</code>, Python permite executar múltiplas tarefas concorrentemente sem criar múltiplas threads.</p>
+<div class="highlight-box">
+<strong>🎯 Por que importa?</strong> APIs REST rápidas, pipelines de dados eficientes e integração com LLMs dependem de I/O assíncrono. FastAPI, LangChain e Celery são todos construídos sobre esse paradigma.
+</div>
+<h2>Conceitos Fundamentais</h2>
+<p>O modelo de asyncio usa um <strong>event loop</strong> — um loop que verifica constantemente se alguma tarefa assíncrona terminou e pode continuar.</p>
+<pre><code>import asyncio
+
+# Função assíncrona (coroutine)
+async def buscar_dados(url: str) -> dict:
+    await asyncio.sleep(1)  # simula I/O
+    return {"url": url, "status": 200}
+
+# Executar múltiplas coroutines em paralelo
+async def main():
+    urls = ["api/users", "api/products", "api/orders"]
+    
+    # asyncio.gather executa tudo simultaneamente!
+    resultados = await asyncio.gather(
+        *[buscar_dados(url) for url in urls]
+    )
+    
+    for r in resultados:
+        print(r)
+
+asyncio.run(main())</code></pre>
+<h2>async/await na prática</h2>
+<ul>
+<li><code>async def</code> define uma coroutine (função assíncrona)</li>
+<li><code>await</code> pausa a execução e libera o event loop para outras tarefas</li>
+<li><code>asyncio.gather()</code> executa múltiplas coroutines em paralelo</li>
+<li><code>asyncio.run()</code> inicia o event loop (ponto de entrada)</li>
+</ul>
+<h2>Contexto no FastAPI</h2>
+<pre><code>from fastapi import FastAPI
+import httpx  # cliente HTTP assíncrono
+
+app = FastAPI()
+
+@app.get("/summary")
+async def get_summary():
+    async with httpx.AsyncClient() as client:
+        # Chamadas em paralelo para serviços externos
+        users, orders = await asyncio.gather(
+            client.get("https://api.service1.com/users"),
+            client.get("https://api.service2.com/orders")
+        )
+    return {
+        "users": users.json(),
+        "orders": orders.json()
+    }</code></pre>
+<div class="tip-box">
+<strong>💡 Dica Profissional:</strong> Use <code>httpx.AsyncClient</code> em vez de <code>requests</code> em contextos assíncronos. A biblioteca <code>requests</code> é síncrona e bloqueia o event loop.
+</div>
+<h2>Exercício Prático</h2>
+<p>Crie uma função assíncrona que busca dados de 5 URLs simultaneamente e retorna o tempo total. Compare com a versão síncrona e meça a diferença.</p>`
+          },
+          {
+            id: '1-2', title: 'Docker e Docker Compose na Prática',
+            type: 'video', duration: '1h 20min',
+            videoId: 'pg19Z8LL06w',
+            content: `
+<h2>Docker: Containerize tudo</h2>
+<p>Docker garante que sua aplicação roda exatamente igual em qualquer ambiente — desenvolvimento, staging ou produção. É o padrão absoluto do mercado.</p>
+<div class="highlight-box">
+<strong>🎯 Contexto real:</strong> Todos os projetos do curso serão containerizados. FastAPI + Redis + Celery + Qdrant em um único <code>docker-compose.yml</code>.
+</div>
+<h2>Dockerfile otimizado para Python</h2>
+<pre><code># Multi-stage build — imagem de produção menor
+FROM python:3.12-slim as builder
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim as production
+
+WORKDIR /app
+# Copia apenas os pacotes instalados, não o builder completo
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY . .
+
+# Usuário não-root (segurança)
+RUN adduser --disabled-password appuser
+USER appuser
+
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
+<h2>Docker Compose — Stack completa</h2>
+<pre><code>version: "3.9"
+
+services:
+  api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/mydb
+      - REDIS_URL=redis://redis:6379
+    depends_on: [db, redis]
+    volumes:
+      - ./:/app  # hot reload em dev
+  
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+volumes:
+  postgres_data:</code></pre>
+<div class="tip-box">
+<strong>💡 Comandos essenciais:</strong><br>
+<code>docker compose up -d</code> — inicia todos os serviços em background<br>
+<code>docker compose logs -f api</code> — acompanha logs em tempo real<br>
+<code>docker compose exec api bash</code> — entra no container<br>
+<code>docker compose down -v</code> — para e remove volumes
+</div>
+<h2>Projeto: Stack de Desenvolvimento</h2>
+<p>Monte um <code>docker-compose.yml</code> com: FastAPI, PostgreSQL, Redis e PgAdmin. Configure variáveis de ambiente via arquivo <code>.env</code> e garanta que tudo sobe com um único comando.</p>`
+          },
+          {
+            id: '1-3', title: 'Pydantic v2 e Validação de Dados',
+            type: 'video', duration: '38min',
+            videoId: 'XIdQ6gO3Anc',
+            content: `
+<h2>Pydantic v2 — O guardião dos seus dados</h2>
+<p>Pydantic é a biblioteca de validação de dados mais usada no ecossistema Python. Com a v2 (reescrita em Rust), é até 10x mais rápida que a v1.</p>
+<pre><code>from pydantic import BaseModel, Field, EmailStr, validator
+from datetime import datetime
+from typing import Optional
+from enum import Enum
+
+class StatusEnum(str, Enum):
+    active = "active"
+    inactive = "inactive"
+    pending = "pending"
+
+class UserCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    email: EmailStr
+    age: int = Field(ge=18, le=120)
+    status: StatusEnum = StatusEnum.pending
+    created_at: datetime = Field(default_factory=datetime.now)
+    
+    # Validador customizado
+    @validator('name')
+    def name_must_be_capitalized(cls, v):
+        return v.strip().title()
+
+# Uso
+user = UserCreate(
+    name="joão silva",
+    email="joao@email.com",
+    age=28
+)
+print(user.name)  # "João Silva" — capitalizado automaticamente
+print(user.model_dump())  # serializa para dict</code></pre>
+<h2>Schemas de Request/Response</h2>
+<pre><code># Separar schemas de entrada e saída é best practice
+class DocumentBase(BaseModel):
+    title: str
+    content: str
+    tags: list[str] = []
+
+class DocumentCreate(DocumentBase):
+    pass  # usado no POST — sem id, sem timestamps
+
+class DocumentResponse(DocumentBase):
+    id: int
+    created_at: datetime
+    
+    model_config = {"from_attributes": True}  # compatível com SQLAlchemy</code></pre>
+<div class="tip-box">
+<strong>💡 No FastAPI:</strong> Pydantic é integrado nativamente. O FastAPI usa seus modelos para validar requests, gerar documentação automática (Swagger) e serializar responses.
+</div>`
+          },
+          {
+            id: '1-4', title: 'SQLAlchemy 2.0 + Alembic',
+            type: 'video', duration: '55min',
+            videoId: 'woKYyhLCVnU',
+            content: `
+<h2>SQLAlchemy 2.0 — ORM Moderno</h2>
+<p>SQLAlchemy é o ORM padrão do Python para bancos relacionais. A versão 2.0 trouxe suporte nativo a async e sintaxe mais pythônica.</p>
+<pre><code>from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, relationship
+from datetime import datetime
+
+class Base(DeclarativeBase):
+    pass
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True, nullable=False)
+    name = Column(String(100), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relacionamento
+    documents = relationship("Document", back_populates="owner")
+
+# Engine assíncrona
+engine = create_async_engine(
+    "postgresql+asyncpg://user:pass@localhost/db",
+    echo=True  # log de queries em dev
+)
+
+# CRUD assíncrono
+async def get_user(db: AsyncSession, user_id: int):
+    result = await db.execute(
+        select(User).where(User.id == user_id)
+    )
+    return result.scalar_one_or_none()</code></pre>
+<h2>Migrations com Alembic</h2>
+<pre><code># Inicializar alembic
+alembic init alembic
+
+# Gerar migration automática
+alembic revision --autogenerate -m "add users table"
+
+# Aplicar migrations
+alembic upgrade head
+
+# Rollback
+alembic downgrade -1</code></pre>
+<div class="warn-box">
+<strong>⚠️ SQL Server:</strong> Para SQL Server, use <code>pyodbc</code> + <code>aioodbc</code> e a connection string: <code>mssql+aioodbc://user:pass@server/db?driver=ODBC+Driver+17+for+SQL+Server</code>
+</div>`
+          },
+          {
+            id: '1-5', title: 'Testes com pytest e CI/CD',
+            type: 'video', duration: '44min',
+            videoId: 'cHYq1MRoyI0',
+            content: `
+<h2>pytest — Testes profissionais em Python</h2>
+<p>Código sem testes é código que você não confia. pytest é o framework de testes mais completo do Python.</p>
+<pre><code>import pytest
+from httpx import AsyncClient
+from app.main import app
+
+# Fixture — setup reutilizável
+@pytest.fixture
+async def client():
+    async with AsyncClient(app=app, base_url="http://test") as c:
+        yield c
+
+@pytest.fixture
+async def db_session():
+    # Setup banco de teste
+    async with get_test_session() as session:
+        yield session
+        await session.rollback()  # limpa após cada teste
+
+# Teste simples
+def test_sum():
+    assert 1 + 1 == 2
+
+# Teste de API
+@pytest.mark.asyncio
+async def test_create_user(client):
+    response = await client.post("/users", json={
+        "name": "Test User",
+        "email": "test@test.com",
+        "age": 25
+    })
+    assert response.status_code == 201
+    data = response.json()
+    assert data["email"] == "test@test.com"
+
+# Parametrize — múltiplos cenários
+@pytest.mark.parametrize("email,valid", [
+    ("valid@email.com", True),
+    ("not-an-email", False),
+    ("@nodomain.com", False),
+])
+def test_email_validation(email, valid):
+    from pydantic import ValidationError
+    try:
+        UserCreate(email=email, name="Test", age=20)
+        assert valid
+    except ValidationError:
+        assert not valid</code></pre>
+<div class="tip-box">
+<strong>💡 Coverage:</strong> <code>pytest --cov=app --cov-report=html</code> gera relatório visual de cobertura. Mire em 80%+ nas funções críticas.
+</div>`
+          }
+        ],
+        quiz: [
+          { q: "O que faz a palavra-chave `await` em Python?", opts: ["Bloqueia a thread atual", "Pausa a coroutine e libera o event loop", "Cria uma nova thread", "Define uma função síncrona"], ans: 1, exp: "await pausa a execução da coroutine atual e devolve o controle ao event loop, permitindo que outras coroutines sejam executadas enquanto aguarda I/O." },
+          { q: "Qual comando inicia todos os serviços definidos no docker-compose.yml em background?", opts: ["docker compose start", "docker compose run -d", "docker compose up -d", "docker run --bg"], ans: 2, exp: "docker compose up -d inicia todos os serviços em modo detached (background). O flag -d significa 'detached'." },
+          { q: "No Pydantic v2, qual decorator é usado para validadores customizados de campo?", opts: ["@field_validator", "@validator", "@validate", "@check_field"], ans: 0, exp: "No Pydantic v2 o decorator correto é @field_validator. O @validator da v1 ainda funciona mas é deprecated." },
+          { q: "Qual é a principal vantagem do multi-stage build no Docker?", opts: ["Mais segurança", "Imagem final menor sem ferramentas de build", "Build mais rápido", "Compatibilidade com mais sistemas"], ans: 1, exp: "Multi-stage builds permitem usar uma imagem pesada com ferramentas de compilação e copiar apenas os artefatos necessários para uma imagem slim de produção." },
+          { q: "Em SQLAlchemy 2.0, qual método é usado para executar queries assíncronas?", opts: ["db.query()", "db.execute() + await", "session.run()", "db.find()"], ans: 1, exp: "No SQLAlchemy 2.0 assíncrono, usa-se 'await db.execute(select(Model)...)' com AsyncSession para queries assíncronas." },
+          { q: "O que faz o comando 'alembic upgrade head'?", opts: ["Reverte para a versão inicial", "Aplica todas as migrations pendentes", "Cria uma nova migration", "Mostra o histórico"], ans: 1, exp: "'alembic upgrade head' aplica todas as migrations pendentes, levando o banco ao estado mais recente (head)." }
+        ]
+      },
+      {
+        id: 2, color: '#00d4ff', colorClass: 'mod-m2',
+        level: 'Módulo 2 · Intermediário',
+        title: 'Construindo Sistemas Robustos & Escaláveis',
+        desc: 'FastAPI em produção, Redis Streams, Celery workers, arquiteturas event-driven e armazenamento em cloud.',
+        hours: 240, tags: ['Intermediário', '240h'],
+        icon: '⚙️',
+        longDesc: 'Você leva APIs FastAPI ao nível de produção: autenticação, cache, filas com Celery, Redis para streams e padrões para sistemas distribuídos e cloud.',
+        outcomes: [
+          'Projetar APIs REST seguras com JWT, CORS e documentação OpenAPI.',
+          'Usar Redis para cache, rate limiting e mensageria com Streams.',
+          'Distribuir tarefas assíncronas com Celery, workers e monitoramento.',
+          'Aplicar arquitetura event-driven e boas práticas em microserviços.'
+        ],
+        lessons: [
+          {
+            id: '2-1', title: 'FastAPI: APIs REST em Produção',
+            type: 'video', duration: '1h 10min',
+            videoId: '0sOvCWFmrtA',
+            content: `
+<h2>FastAPI — O framework mais rápido do mercado</h2>
+<p>FastAPI combina performance (Starlette + uvicorn), validação automática (Pydantic) e documentação automática (OpenAPI/Swagger) em um único framework.</p>
+<pre><code>from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+
+app = FastAPI(
+    title="ASI API",
+    version="1.0.0",
+    docs_url="/docs",  # Swagger UI
+    redoc_url="/redoc"
+)
+
+# CORS
+app.add_middleware(CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# Dependency injection — reutilizável em múltiplas rotas
+async def get_db():
+    async with AsyncSession(engine) as session:
+        yield session
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    db: AsyncSession = Depends(get_db)
+) -> User:
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=["HS256"])
+        user = await get_user(db, payload["sub"])
+        if not user:
+            raise HTTPException(status_code=401, detail="Usuário não encontrado")
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expirado")
+
+# Router organização
+from fastapi import APIRouter
+router = APIRouter(prefix="/api/v1", tags=["users"])
+
+@router.post("/users", status_code=201, response_model=UserResponse)
+async def create_user(
+    payload: UserCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    # Verificar duplicidade
+    existing = await get_user_by_email(db, payload.email)
+    if existing:
+        raise HTTPException(status_code=409, detail="Email já cadastrado")
+    
+    user = await create_user_db(db, payload)
+    return user
+
+app.include_router(router)</code></pre>
+<div class="tip-box">
+<strong>💡 Background Tasks:</strong> Use <code>BackgroundTasks</code> do FastAPI para operações que não precisam bloquear a resposta, como envio de emails ou processamento de logs.
+</div>`
+          },
+          {
+            id: '2-2', title: 'Redis: Cache e Streams',
+            type: 'video', duration: '58min',
+            videoId: 'jgpVdJB2sKQ',
+            content: `
+<h2>Redis — Velocidade no DNA</h2>
+<p>Redis é um banco de dados in-memory com estruturas de dados ricas. Usado para cache, sessões, filas, pub/sub e rate limiting.</p>
+<pre><code>import redis.asyncio as redis
+import json
+
+# Conexão
+r = redis.Redis(host="localhost", port=6379, decode_responses=True)
+
+# ── CACHE com TTL ──
+async def get_cached_user(user_id: int):
+    key = f"user:{user_id}"
+    cached = await r.get(key)
+    
+    if cached:
+        return json.loads(cached)  # cache hit
+    
+    user = await fetch_user_from_db(user_id)
+    await r.setex(key, 3600, json.dumps(user))  # TTL: 1 hora
+    return user
+
+# ── RATE LIMITING ──
+async def check_rate_limit(ip: str, limit: int = 100):
+    key = f"rate:{ip}"
+    count = await r.incr(key)
+    if count == 1:
+        await r.expire(key, 60)  # janela de 1 minuto
+    if count > limit:
+        raise HTTPException(429, "Too many requests")
+
+# ── REDIS STREAMS (mensageria) ──
+async def publish_event(stream: str, data: dict):
+    await r.xadd(stream, data)
+
+async def consume_events(stream: str, group: str, consumer: str):
+    while True:
+        messages = await r.xreadgroup(
+            group, consumer, {stream: ">"},
+            count=10, block=1000
+        )
+        for _, msgs in messages:
+            for msg_id, msg_data in msgs:
+                await process_message(msg_data)
+                await r.xack(stream, group, msg_id)</code></pre>
+<div class="warn-box">
+<strong>⚠️ Redis Cluster:</strong> Para produção com alta disponibilidade, use Redis Cluster ou Redis Sentinel. Nunca um único nó Redis sem replicação em produção.
+</div>`
+          },
+          {
+            id: '2-3', title: 'Celery: Processamento Assíncrono',
+            type: 'video', duration: '45min',
+            videoId: 'THxCy-6EnQM',
+            content: `
+<h2>Celery + Flower — Tarefas em Background</h2>
+<p>Celery distribui tarefas pesadas para workers em background. Perfeito para processamento de documentos, envio de emails, geração de relatórios e pipelines de dados.</p>
+<pre><code>from celery import Celery
+from celery.utils.log import get_task_logger
+
+logger = get_task_logger(__name__)
+
+app = Celery(
+    "tasks",
+    broker="redis://localhost:6379/0",
+    backend="redis://localhost:6379/1"
+)
+
+# Configuração avançada
+app.conf.update(
+    task_serializer="json",
+    result_serializer="json",
+    accept_content=["json"],
+    task_track_started=True,
+    task_acks_late=True,  # confirma só após processamento
+    worker_prefetch_multiplier=1,  # um task por vez por worker
+)
+
+# Task simples com retry automático
+@app.task(
+    bind=True,
+    max_retries=3,
+    default_retry_delay=60,  # 60s entre tentativas
+    autoretry_for=(Exception,)
+)
+def process_document(self, document_id: int, user_id: int):
+    logger.info(f"Processing document {document_id}")
+    try:
+        doc = fetch_document(document_id)
+        result = run_ai_pipeline(doc)
+        save_result(document_id, result)
+        return {"status": "success", "doc_id": document_id}
+    except Exception as exc:
+        logger.error(f"Error: {exc}")
+        raise self.retry(exc=exc)
+
+# Agendamento (Celery Beat)
+from celery.schedules import crontab
+app.conf.beat_schedule = {
+    "daily-report": {
+        "task": "tasks.generate_daily_report",
+        "schedule": crontab(hour=8, minute=0),  # 8h diário
+    },
+    "cleanup": {
+        "task": "tasks.cleanup_old_files",
+        "schedule": crontab(day_of_week=0, hour=2),  # domingo 2h
+    },
+}
+
+# Chamada do endpoint FastAPI
+@app.post("/documents/process")
+async def trigger_processing(doc_id: int, user=Depends(get_current_user)):
+    task = process_document.delay(doc_id, user.id)
+    return {"task_id": task.id, "status": "queued"}</code></pre>`
+          },
+          {
+            id: '2-4', title: 'Arquiteturas Event-Driven e Microservices',
+            type: 'video', duration: '1h 05min',
+            videoId: 'rv4LlmLmVWk',
+            content: `
+<h2>Event-Driven Architecture</h2>
+<p>Sistemas event-driven desacoplam serviços através de eventos. Um serviço publica eventos e outros respondem a eles, sem conhecer uns aos outros.</p>
+<div class="highlight-box">
+<strong>Padrão Saga:</strong> Para transações distribuídas entre microserviços, use o padrão Saga com compensações. Ex: pedido criado → pagamento processado → estoque reservado → notificação enviada.
+</div>
+<pre><code># Event Bus simples com Redis Streams
+class EventBus:
+    def __init__(self, redis_client):
+        self.redis = redis_client
+    
+    async def publish(self, event_type: str, payload: dict):
+        event = {
+            "type": event_type,
+            "payload": json.dumps(payload),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        await self.redis.xadd(f"events:{event_type}", event)
+    
+    async def subscribe(self, event_type: str, handler):
+        group = f"handler:{handler.__name__}"
+        try:
+            await self.redis.xgroup_create(
+                f"events:{event_type}", group, "$", mkstream=True
+            )
+        except:
+            pass  # grupo já existe
+        
+        while True:
+            messages = await self.redis.xreadgroup(
+                group, "worker", {f"events:{event_type}": ">"},
+                count=1, block=0
+            )
+            for _, msgs in messages:
+                for msg_id, data in msgs:
+                    await handler(json.loads(data["payload"]))
+                    await self.redis.xack(f"events:{event_type}", group, msg_id)</code></pre>
+<h2>Microservices — Quando usar?</h2>
+<ul>
+<li>✅ Equipes independentes precisam deploys separados</li>
+<li>✅ Partes com requisitos de escalabilidade muito diferentes</li>
+<li>✅ Domínios de negócio bem delimitados (DDD)</li>
+<li>❌ Time pequeno (1-5 devs) — monolito modular é melhor</li>
+<li>❌ Sistema novo sem domínio bem definido ainda</li>
+</ul>`
+          }
+        ],
+        quiz: [
+          { q: "Qual é a vantagem de usar Dependency Injection no FastAPI com Depends()?", opts: ["Aumenta a velocidade da API", "Permite reutilizar lógica de autenticação, DB e outros em múltiplas rotas", "Gera documentação automática", "Elimina necessidade de Pydantic"], ans: 1, exp: "Depends() permite criar dependências reutilizáveis que são injetadas automaticamente nas rotas, como conexões de banco, autenticação e outros recursos." },
+          { q: "O que significa TTL em Redis?", opts: ["Total Transfer Limit", "Time To Live — tempo até a chave expirar", "Transfer Token Layer", "Type To Load"], ans: 1, exp: "TTL (Time To Live) define por quanto tempo uma chave deve existir no Redis antes de ser automaticamente deletada." },
+          { q: "Qual flag do Celery garante que a tarefa só é confirmada após ser processada com sucesso?", opts: ["task_acks_early", "ack_on_success", "task_acks_late", "confirm_after_run"], ans: 2, exp: "task_acks_late=True faz o worker confirmar a tarefa para o broker somente após processá-la, garantindo que em caso de falha a tarefa seja reagendada." },
+          { q: "Em uma arquitetura event-driven, o padrão SAGA é usado para?", opts: ["Otimizar queries SQL", "Gerenciar transações distribuídas entre microserviços", "Cache distribuído", "Autenticação JWT"], ans: 1, exp: "O padrão Saga gerencia transações longas e distribuídas entre múltiplos microserviços usando uma sequência de transações locais com compensações em caso de falha." },
+          { q: "Redis Streams é mais adequado que Redis Pub/Sub quando?", opts: ["Precisa de menor latência", "Precisa de persistência e replay de mensagens", "Mensagens são muito grandes", "Precisa de criptografia"], ans: 1, exp: "Redis Streams persiste mensagens e permite consumer groups e replay. Pub/Sub é fire-and-forget — se o consumer não estiver online, perde a mensagem." }
+        ]
+      },
+      {
+        id: 3, color: '#6e7dff', colorClass: 'mod-m3',
+        level: 'Módulo 3 · Avançado',
+        title: 'IA Aplicada, RAG & Sistemas Inteligentes',
+        desc: 'LangChain, LangGraph, OpenAI APIs, busca vetorial com Qdrant, pipelines RAG avaliados com RAGAS e observabilidade completa.',
+        hours: 300, tags: ['Avançado', '300h'],
+        icon: '🤖',
+        longDesc: 'Do primeiro prompt ao RAG em produção: integração com modelos OpenAI, LangChain e LangGraph, busca vetorial, avaliação com RAGAS e observabilidade de custo e latência.',
+        outcomes: [
+          'Integrar GPT, embeddings e visão em fluxos assíncronos.',
+          'Montar pipelines RAG com chunking, Qdrant e recuperação híbrida.',
+          'Orquestrar agentes com LangGraph e monitorar execuções.',
+          'Medir qualidade com RAGAS e métricas operacionais (tokens, erros).'
+        ],
+        lessons: [
+          {
+            id: '3-1', title: 'OpenAI API: GPT-4o, Embeddings e Vision',
+            type: 'video', duration: '1h 15min',
+            videoId: 'uRQH2CFvedY',
+            content: `
+<h2>OpenAI API — O motor por trás de tudo</h2>
+<p>A OpenAI fornece os modelos mais poderosos do mercado via API. Neste módulo, usamos GPT-4o para geração, embeddings para busca semântica e Vision para análise de imagens.</p>
+<pre><code>from openai import AsyncOpenAI
+import base64
+
+client = AsyncOpenAI(api_key="your-key")
+
+# ── TEXT GENERATION ──
+async def generate_insight(context: str, question: str) -> str:
+    response = await client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Você é um analista de negócios sênior."},
+            {"role": "user", "content": f"Contexto: {context}\n\nPergunta: {question}"}
+        ],
+        temperature=0.3,
+        max_tokens=500
+    )
+    return response.choices[0].message.content
+
+# ── EMBEDDINGS ──
+async def embed_text(text: str) -> list[float]:
+    response = await client.embeddings.create(
+        model="text-embedding-3-small",
+        input=text
+    )
+    return response.data[0].embedding  # vetor 1536 dimensões
+
+# ── VISION API ──
+async def analyze_document_image(image_path: str) -> dict:
+    with open(image_path, "rb") as f:
+        image_data = base64.b64encode(f.read()).decode()
+    
+    response = await client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "image_url", "image_url": {
+                    "url": f"data:image/jpeg;base64,{image_data}"
+                }},
+                {"type": "text", "text": "Extraia todos os dados estruturados desta nota fiscal: CNPJ, data, valor total, itens."}
+            ]
+        }],
+        response_format={"type": "json_object"}
+    )
+    return json.loads(response.choices[0].message.content)
+
+# ── STRUCTURED OUTPUTS ──
+async def classify_document(text: str) -> dict:
+    response = await client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": f"Classifique: {text}"}],
+        response_format={"type": "json_object"}  # garante JSON válido
+    )
+    return json.loads(response.choices[0].message.content)</code></pre>
+<div class="tip-box">
+<strong>💡 Cost Control:</strong> Use <code>text-embedding-3-small</code> (5x mais barato que ada-002 com performance similar). Para geração, GPT-4o-mini cobre 80% dos casos de uso por 1/10 do custo do GPT-4o.
+</div>`
+          },
+          {
+            id: '3-2', title: 'LangChain e LangGraph: Agentes Inteligentes',
+            type: 'video', duration: '1h 30min',
+            videoId: 'lG7Uxts9SXs',
+            content: `
+<h2>LangChain — Orquestrando LLMs</h2>
+<p>LangChain fornece abstrações para construir aplicações com LLMs: chains, agents, tools, memory e muito mais.</p>
+<pre><code>from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain.tools import Tool
+
+# ── CHAIN SIMPLES ──
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
+
+prompt = ChatPromptTemplate.from_template("""
+Você é um assistente especialista em {domain}.
+Responda em português brasileiro, de forma técnica e objetiva.
+
+Pergunta: {question}
+""")
+
+chain = prompt | llm | StrOutputParser()
+response = chain.invoke({"domain": "Python", "question": "O que é asyncio?"})
+
+# ── TOOLS ──
+def search_documentation(query: str) -> str:
+    """Busca na documentação técnica interna."""
+    results = vector_store.similarity_search(query, k=3)
+    return "\n".join([doc.page_content for doc in results])
+
+tools = [
+    Tool(
+        name="search_docs",
+        func=search_documentation,
+        description="Busca na base de conhecimento técnica"
+    )
+]
+
+# ── LANGGRAPH: Agente Multi-Step ──
+from langgraph.graph import StateGraph, END
+from typing import TypedDict, Annotated
+import operator
+
+class AgentState(TypedDict):
+    question: str
+    context: list[str]
+    answer: str
+    iterations: int
+
+def retrieve_context(state: AgentState) -> AgentState:
+    docs = vector_store.similarity_search(state["question"], k=5)
+    return {**state, "context": [d.page_content for d in docs]}
+
+def generate_answer(state: AgentState) -> AgentState:
+    context = "\n".join(state["context"])
+    answer = chain.invoke({"context": context, "question": state["question"]})
+    return {**state, "answer": answer}
+
+def should_retry(state: AgentState) -> str:
+    if state["iterations"] > 2:
+        return END
+    if len(state["answer"]) < 50:
+        return "retrieve"  # resposta muito curta, buscar mais contexto
+    return END
+
+# Construir grafo
+graph = StateGraph(AgentState)
+graph.add_node("retrieve", retrieve_context)
+graph.add_node("generate", generate_answer)
+graph.add_edge("retrieve", "generate")
+graph.add_conditional_edges("generate", should_retry, {END: END, "retrieve": "retrieve"})
+graph.set_entry_point("retrieve")
+
+agent = graph.compile()
+result = agent.invoke({"question": "Como configurar Celery com Redis?", "iterations": 0})</code></pre>`
+          },
+          {
+            id: '3-3', title: 'Qdrant e Busca Vetorial Semântica',
+            type: 'video', duration: '52min',
+            videoId: 'klTvEwg2oac',
+            content: `
+<h2>Qdrant — Banco de dados vetorial de alta performance</h2>
+<p>Qdrant armazena vetores (embeddings) e permite busca por similaridade semântica. Fundamental para sistemas RAG, recomendação e busca inteligente.</p>
+<pre><code>from qdrant_client import AsyncQdrantClient
+from qdrant_client.models import (
+    Distance, VectorParams, PointStruct,
+    Filter, FieldCondition, MatchValue
+)
+
+client = AsyncQdrantClient(host="localhost", port=6333)
+
+# ── CRIAR COLEÇÃO ──
+await client.create_collection(
+    collection_name="documents",
+    vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
+)
+
+# ── INDEXAR DOCUMENTOS ──
+async def index_document(doc_id: str, text: str, metadata: dict):
+    embedding = await embed_text(text)
+    
+    await client.upsert(
+        collection_name="documents",
+        points=[PointStruct(
+            id=doc_id,
+            vector=embedding,
+            payload={"text": text, **metadata}
+        )]
+    )
+
+# ── BUSCA SEMÂNTICA ──
+async def semantic_search(query: str, filters: dict = None, top_k: int = 5):
+    query_vector = await embed_text(query)
+    
+    # Filtro opcional por metadados
+    qdrant_filter = None
+    if filters:
+        qdrant_filter = Filter(must=[
+            FieldCondition(key=k, match=MatchValue(value=v))
+            for k, v in filters.items()
+        ])
+    
+    results = await client.search(
+        collection_name="documents",
+        query_vector=query_vector,
+        query_filter=qdrant_filter,
+        limit=top_k,
+        with_payload=True
+    )
+    
+    return [
+        {"id": r.id, "score": r.score, "text": r.payload["text"]}
+        for r in results
+    ]
+
+# Uso: busca filtrada por categoria
+results = await semantic_search(
+    "como configurar autenticação JWT",
+    filters={"category": "security"},
+    top_k=3
+)</code></pre>
+<div class="tip-box">
+<strong>💡 Chunking Strategy:</strong> Para documentos longos, divida em chunks de 512 tokens com overlap de 64 tokens. Use <code>RecursiveCharacterTextSplitter</code> do LangChain para manter contexto entre chunks.
+</div>`
+          },
+          {
+            id: '3-4', title: 'Pipeline RAG com RAGAS e LangSmith',
+            type: 'video', duration: '1h 20min',
+            videoId: 'T-D1OfcDW1M',
+            content: `
+<h2>RAG — Retrieval Augmented Generation</h2>
+<p>RAG combina busca vetorial com geração de LLMs para responder perguntas baseadas em documentos privados, sem necessidade de fine-tuning.</p>
+<pre><code>from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.prompts import ChatPromptTemplate
+
+# ── RAG PIPELINE COMPLETO ──
+RAG_PROMPT = ChatPromptTemplate.from_template("""
+Você é um assistente técnico. Use APENAS o contexto abaixo para responder.
+Se a informação não estiver no contexto, diga "Não encontrei essa informação na base".
+
+Contexto:
+{context}
+
+Pergunta: {question}
+
+Resposta:""")
+
+def format_docs(docs):
+    return "\n\n".join([f"[Fonte: {d.metadata.get('source', 'doc')}]\n{d.page_content}" for d in docs])
+
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | RAG_PROMPT
+    | llm
+    | StrOutputParser()
+)
+
+# ── AVALIAÇÃO COM RAGAS ──
+from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,      # resposta fiel ao contexto?
+    answer_relevancy,  # resposta relevante à pergunta?
+    context_recall,    # contexto recuperado suficiente?
+    context_precision, # contexto sem ruído?
+)
+from datasets import Dataset
+
+# Dataset de avaliação
+eval_dataset = Dataset.from_dict({
+    "question": ["O que é asyncio?", "Como usar Docker?"],
+    "answer": [generated_answers[0], generated_answers[1]],
+    "contexts": [[contexts[0]], [contexts[1]]],
+    "ground_truth": ["asyncio é...", "Docker é..."]
+})
+
+result = evaluate(
+    dataset=eval_dataset,
+    metrics=[faithfulness, answer_relevancy, context_recall, context_precision]
+)
+print(result)  # scores de 0 a 1 para cada métrica</code></pre>
+<div class="highlight-box">
+<strong>🎯 LangSmith:</strong> Configure <code>LANGCHAIN_TRACING_V2=true</code> e <code>LANGCHAIN_API_KEY</code> para rastrear automaticamente cada chamada de LLM, latência, tokens usados e custo em produção.
+</div>`
+          },
+          {
+            id: '3-5', title: 'Prometheus, Grafana e Observabilidade',
+            type: 'video', duration: '48min',
+            videoId: 'h4Sl21AKiDg',
+            content: `
+<h2>Observabilidade em Sistemas de IA</h2>
+<p>Sistemas com LLMs em produção precisam de monitoramento especial: latência de chamadas, taxa de erro, custo por request e qualidade das respostas.</p>
+<pre><code>from prometheus_client import Counter, Histogram, Gauge, start_http_server
+import time
+
+# ── MÉTRICAS ──
+REQUEST_COUNT = Counter("api_requests_total", "Total requests", ["method", "endpoint", "status"])
+REQUEST_LATENCY = Histogram("api_request_duration_seconds", "Request duration", ["endpoint"])
+LLM_TOKENS = Counter("llm_tokens_total", "Total LLM tokens", ["model", "type"])
+LLM_COST = Counter("llm_cost_usd_total", "LLM cost in USD", ["model"])
+ACTIVE_WORKERS = Gauge("celery_active_workers", "Active Celery workers")
+
+# ── MIDDLEWARE FASTAPI ──
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+    
+    REQUEST_COUNT.labels(
+        method=request.method,
+        endpoint=request.url.path,
+        status=response.status_code
+    ).inc()
+    
+    REQUEST_LATENCY.labels(endpoint=request.url.path).observe(duration)
+    return response
+
+# Expor métricas para Prometheus
+start_http_server(9090)  # ou use /metrics endpoint</code></pre>
+<h2>Grafana Dashboard</h2>
+<p>Configure no Grafana os seguintes painéis essenciais para sistemas de IA:</p>
+<ul>
+<li>P50/P95/P99 latência de requests</li>
+<li>Taxa de erro por endpoint</li>
+<li>Tokens LLM consumidos por hora</li>
+<li>Custo acumulado de API</li>
+<li>Fila Celery: tarefas pendentes vs processadas</li>
+<li>RAGAS scores médios por período</li>
+</ul>`
+          }
+        ],
+        quiz: [
+          { q: "Qual modelo OpenAI é mais adequado para gerar embeddings com melhor custo-benefício?", opts: ["gpt-4o", "text-embedding-ada-002", "text-embedding-3-small", "dall-e-3"], ans: 2, exp: "text-embedding-3-small é 5x mais barato que ada-002 e tem performance similar ou superior na maioria dos casos de uso." },
+          { q: "O que é LangGraph em relação ao LangChain?", opts: ["Uma versão mais rápida do LangChain", "Uma extensão para criar fluxos stateful e agentes multi-step com grafos", "Um banco de dados vetorial", "Uma ferramenta de monitoramento"], ans: 1, exp: "LangGraph é uma extensão do LangChain para criar agentes com estado persistente usando grafos direcionados, permitindo loops, condicionais e múltiplos agentes." },
+          { q: "No RAGAS, a métrica 'faithfulness' mede o quê?", opts: ["Se a pergunta foi respondida corretamente", "Se a resposta é fiel ao contexto recuperado (sem alucinações)", "A velocidade da resposta", "O custo em tokens"], ans: 1, exp: "Faithfulness mede se cada afirmação na resposta pode ser sustentada pelo contexto recuperado, indicando se o LLM 'aluciu' ou não." },
+          { q: "Qual a função do 'distance=Distance.COSINE' ao criar uma coleção no Qdrant?", opts: ["Define o tamanho máximo dos vetores", "Define a métrica usada para calcular similaridade entre vetores", "Define a linguagem de query", "Configura replicação"], ans: 1, exp: "A métrica de distância define como a similaridade entre vetores é calculada. COSINE mede o ângulo entre vetores, sendo ideal para embeddings de texto." },
+          { q: "O que faz asyncio.gather() com múltiplas coroutines?", opts: ["Executa uma de cada vez na ordem", "Executa todas em paralelo e espera todas terminarem", "Cria threads para cada coroutine", "Cancela as coroutines mais lentas"], ans: 1, exp: "asyncio.gather() executa múltiplas coroutines concorrentemente no mesmo event loop e retorna quando todas terminam, sendo muito eficiente para I/O paralelo." }
+        ]
+      },
+      {
+        id: 4, color: '#ffd166', colorClass: 'mod-m4',
+        level: 'Módulo 4 · Mais que Pronto',
+        title: 'Produto, Gestão Técnica & Go-to-Market',
+        desc: 'Arquitetura enterprise, gestão de produto, marketing técnico, monetização de APIs e liderança de times de alto desempenho.',
+        hours: 240, tags: ['Mais que Pronto', '240h'],
+        icon: '🏆',
+        longDesc: 'Você evolui de implementador a referência técnica: arquitetura enterprise, decisões documentadas (ADRs), gestão de produto, posicionamento e monetização de APIs e SaaS.',
+        outcomes: [
+          'Aplicar resiliência (Circuit Breaker), ADRs e pilares Well-Architected.',
+          'Priorizar roadmap com RICE e conectar métricas de produto à engenharia.',
+          'Definir pricing, packaging e go-to-market para APIs e produtos digitais.',
+          'Liderar times técnicos com alinhamento a negócio e stakeholders.'
+        ],
+        lessons: [
+          {
+            id: '4-1', title: 'Arquitetura de Soluções Enterprise',
+            type: 'video', duration: '1h 00min',
+            videoId: 'XD6N8bsjOEE',
+            content: `
+<h2>Arquitetura que aguenta produção de verdade</h2>
+<p>Desenhar sistemas que sobrevivem a picos de tráfego, falhas parciais e crescimento de equipe é uma das habilidades mais valorizadas do mercado.</p>
+<div class="highlight-box">
+<strong>Os 5 pilares do Well-Architected Framework (AWS):</strong> Excelência Operacional, Segurança, Confiabilidade, Eficiência de Performance e Otimização de Custos.
+</div>
+<h2>Design para Resiliência</h2>
+<pre><code># Circuit Breaker Pattern
+import asyncio
+from enum import Enum
+
+class CircuitState(Enum):
+    CLOSED = "closed"      # normal
+    OPEN = "open"          # falhando, bloqueando chamadas
+    HALF_OPEN = "half_open" # testando recuperação
+
+class CircuitBreaker:
+    def __init__(self, failure_threshold=5, timeout=60):
+        self.failure_count = 0
+        self.failure_threshold = failure_threshold
+        self.timeout = timeout
+        self.state = CircuitState.CLOSED
+        self.last_failure_time = None
+    
+    async def call(self, func, *args, **kwargs):
+        if self.state == CircuitState.OPEN:
+            if time.time() - self.last_failure_time > self.timeout:
+                self.state = CircuitState.HALF_OPEN
+            else:
+                raise Exception("Circuit breaker OPEN — serviço indisponível")
+        
+        try:
+            result = await func(*args, **kwargs)
+            self.on_success()
+            return result
+        except Exception as e:
+            self.on_failure()
+            raise e
+    
+    def on_success(self):
+        self.failure_count = 0
+        self.state = CircuitState.CLOSED
+    
+    def on_failure(self):
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        if self.failure_count >= self.failure_threshold:
+            self.state = CircuitState.OPEN</code></pre>
+<h2>Architecture Decision Records (ADR)</h2>
+<p>ADRs documentam decisões técnicas importantes e o raciocínio por trás delas. Essenciais para onboarding de novos engenheiros e auditoria futura.</p>
+<pre><code># ADR-001: Uso de Redis Streams em vez de RabbitMQ
+## Status: Aceito
+## Contexto
+Precisamos de um sistema de mensageria para processar documentos em background.
+## Decisão
+Usar Redis Streams (já temos Redis para cache) em vez de adicionar RabbitMQ.
+## Consequências
++ Reduz complexidade operacional (um serviço a menos)
++ Equipe já familiarizada com Redis
+- Menor throughput que RabbitMQ para volumes muito altos (>100k msg/s)
+- Redis Streams não tem exchange/routing como RabbitMQ</code></pre>`
+          },
+          {
+            id: '4-2', title: 'Gestão de Produto e Roadmap Técnico',
+            type: 'video', duration: '52min',
+            videoId: 'Ts44mVJPjXM',
+            content: `
+<h2>Product Management para Engenheiros</h2>
+<p>Engenheiros que entendem produto tomam melhores decisões técnicas, comunicam melhor com stakeholders e avançam mais rápido na carreira.</p>
+<h2>Framework de Priorização: RICE</h2>
+<pre><code>RICE Score = (Reach × Impact × Confidence) / Effort
+
+# Exemplo:
+feature_a = {
+    "reach": 1000,       # usuários afetados/mês
+    "impact": 3,         # 1=mínimo, 2=baixo, 3=médio, 4=alto
+    "confidence": 0.8,   # 80% confiança na estimativa
+    "effort": 2          # semanas de trabalho
+}
+rice_a = (1000 * 3 * 0.8) / 2  # = 1200
+
+# Feature com menor alcance mas mais impacto
+feature_b = {
+    "reach": 200, "impact": 4, "confidence": 0.9, "effort": 1
+}
+rice_b = (200 * 4 * 0.9) / 1  # = 720
+
+# Feature A prioridade mais alta mesmo com menos impacto individual</code></pre>
+<h2>OKRs para Times de Engenharia</h2>
+<ul>
+<li><strong>Objetivo:</strong> Melhorar confiabilidade da plataforma</li>
+<li>KR1: Reduzir taxa de erro de API de 2% para &lt;0.1%</li>
+<li>KR2: Aumentar cobertura de testes de 45% para 80%</li>
+<li>KR3: Reduzir tempo médio de deploy de 45min para &lt;10min</li>
+</ul>
+<div class="tip-box">
+<strong>💡 Product Sense:</strong> Antes de qualquer decisão técnica, pergunte: "Qual problema do usuário isso resolve?" Se não souber responder, descubra antes de codar.
+</div>`
+          },
+          {
+            id: '4-3', title: 'Marketing Técnico e Personal Branding',
+            type: 'video', duration: '45min',
+            videoId: 's0DnMTkSoaQ',
+            content: `
+<h2>Marketing Técnico — Seja conhecido pelo que sabe</h2>
+<p>No mercado de IA e engenharia, visibilidade técnica vale tanto quanto habilidade técnica. Quem não aparece, não é lembrado.</p>
+<h2>Pilares do Personal Branding Técnico</h2>
+<ul>
+<li>📝 <strong>Escrita técnica:</strong> Blog posts, artigos no Medium/Dev.to, posts no LinkedIn com insights reais</li>
+<li>💻 <strong>GitHub público:</strong> Projetos de portfólio, contribuições OSS, README impecável</li>
+<li>🎤 <strong>Comunidade:</strong> Meetups, TDC, QCon, palestras — comece pequeno</li>
+<li>🐦 <strong>Twitter/X:</strong> Threads técnicas têm altíssimo alcance no nicho tech</li>
+</ul>
+<h2>Conteúdo que converte</h2>
+<pre><code># Formato vencedor para posts técnicos:
+1. Hook: "Reduzi o custo de LLM em 80% com um truque simples"
+2. Contexto: Qual problema eu tinha?
+3. Tentativa falhada: O que não funcionou?
+4. Solução: O que funcionou e por quê?
+5. Código/screenshot: Prova concreta
+6. Resultado mensurável: Números reais
+7. CTA: "Quer ver o repositório? Comenta aqui"</code></pre>
+<div class="highlight-box">
+<strong>🎯 Regra dos 20%:</strong> Gaste 20% do seu tempo aprendendo coisas novas, 80% aplicando e ensinando o que sabe. Ensinar consolida conhecimento e gera visibilidade.
+</div>`
+          },
+          {
+            id: '4-4', title: 'Monetização de APIs e Modelos SaaS',
+            type: 'video', duration: '55min',
+            videoId: 'NUkpP3HQEXY',
+            content: `
+<h2>Monetizando seu conhecimento técnico</h2>
+<p>Saber construir sistemas é valioso. Saber precificar, vender e escalar é transformador.</p>
+<h2>Modelos de Negócio para APIs</h2>
+<ul>
+<li><strong>Usage-based (pay-per-use):</strong> Cobrar por chamada/token/documento processado. Ex: OpenAI. Baixo barrier to entry, escala linear.</li>
+<li><strong>Tiered SaaS:</strong> Free → Starter → Pro → Enterprise. O Free gera leads, Enterprise gera revenue.</li>
+<li><strong>Revenue Share:</strong> Cobrar % do valor gerado. Alto risco, alto reward.</li>
+</ul>
+<h2>Métricas SaaS que importam</h2>
+<pre><code># MRR (Monthly Recurring Revenue)
+mrr = sum([user.subscription_price for user in active_users])
+
+# Churn Rate
+churn = churned_users_this_month / users_start_of_month * 100
+
+# LTV (Lifetime Value)
+ltv = avg_mrr_per_user / churn_rate_monthly
+
+# CAC (Customer Acquisition Cost)
+cac = total_sales_marketing_spend / new_customers
+
+# Regra de ouro: LTV deve ser > 3x CAC</code></pre>
+<div class="tip-box">
+<strong>💡 Freelancing Premium:</strong> Engenheiros de IA com stack completa (FastAPI + LangChain + RAG) cobram R$250-500/hora no mercado brasileiro. Posicione-se com portfólio + casos de uso documentados.
+</div>`
+          }
+        ],
+        quiz: [
+          { q: "O padrão Circuit Breaker tem como objetivo principal?", opts: ["Aumentar a velocidade das APIs", "Prevenir falhas em cascata impedindo chamadas a serviços com falha", "Encriptar comunicação entre serviços", "Gerenciar autenticação entre microserviços"], ans: 1, exp: "Circuit Breaker 'abre o circuito' quando detecta muitas falhas, impedindo que um serviço degradado cause falhas em cascata em todos os serviços que dependem dele." },
+          { q: "No framework RICE de priorização de produto, o que representa 'Confidence'?", opts: ["O número de usuários que serão impactados", "O impacto esperado na métrica principal", "A confiança na precisão das estimativas de Reach e Impact", "O esforço em horas de desenvolvimento"], ans: 2, exp: "Confidence é o percentual de confiança que você tem nas estimativas de Reach e Impact. Estimativas especulativas devem ter confidence baixo (20-50%), enquanto dados históricos permitem 80-100%." },
+          { q: "Qual é a 'regra de ouro' mais importante nas métricas SaaS?", opts: ["CAC deve ser maior que LTV", "LTV deve ser maior que 3x o CAC", "Churn deve ser zero", "MRR deve crescer 10% ao mês"], ans: 1, exp: "A regra de ouro é LTV > 3x CAC. Se você gasta mais para adquirir um cliente do que ele gera em receita ao longo do tempo, o negócio não é sustentável." },
+          { q: "O que é um ADR (Architecture Decision Record)?", opts: ["Um tipo de banco de dados", "Documentação das decisões técnicas importantes e seus fundamentos", "Um padrão de autenticação", "Uma ferramenta de monitoramento"], ans: 1, exp: "ADRs são documentos que registram decisões técnicas importantes, o contexto em que foram tomadas e as consequências esperadas, criando memória organizacional valiosa." }
+        ]
+      }
+    ];
+
+    // ══════════════════════════════════════════════════════════
+    //  APP STATE
+    // ══════════════════════════════════════════════════════════
+    let currentUser = null;
+    let currentModuleId = null;
+    let currentLessonId = null;
+    let currentQuizModule = null;
+    let currentQuizQ = 0;
+    let quizAnswers = [];
+    let selectedRating = 5;
+    let prevPage = 'dashboard';
+    let expandedLandingModuleId = null;
+
+    // ══════════════════════════════════════════════════════════
+    //  STORAGE
+    // ══════════════════════════════════════════════════════════
+    const S = {
+      users: () => JSON.parse(localStorage.getItem('asi_users') || '[]'),
+      saveUsers: u => localStorage.setItem('asi_users', JSON.stringify(u)),
+      progress: e => JSON.parse(localStorage.getItem('asi_p_' + e) || '{}'),
+      saveProgress: (e, p) => localStorage.setItem('asi_p_' + e, JSON.stringify(p)),
+      testimonials: () => JSON.parse(localStorage.getItem('asi_testi') || '[]'),
+      saveTesti: t => localStorage.setItem('asi_testi', JSON.stringify(t)),
+      session: () => JSON.parse(localStorage.getItem('asi_session') || 'null'),
+      saveSession: u => localStorage.setItem('asi_session', JSON.stringify(u)),
+      clearSession: () => localStorage.removeItem('asi_session'),
+    };
+
+    // ══════════════════════════════════════════════════════════
+    //  NAVIGATION
+    // ══════════════════════════════════════════════════════════
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const el = document.getElementById('page-' + id);
+      if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
+      renderNav();
+      if (id === 'dashboard') renderDashboard();
+      if (id === 'module') renderModulePage();
+      if (id === 'admin') renderAdmin();
+      if (id === 'testimonials') renderTestimonialsPage();
+      if (id === 'landing') renderLanding();
+    }
+
+    function goHome() {
+      if (currentUser) showPage('dashboard');
+      else showPage('landing');
+    }
+
+    function navTo(id) {
+      if (document.getElementById('page-landing').classList.contains('active')) {
+        scrollToId(id);
+      } else {
+        showPage('landing');
+        setTimeout(() => scrollToId(id), 300);
+      }
+    }
+
+    function scrollToId(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function focusActiveMain(e) {
+      if (e) e.preventDefault();
+      const main = document.querySelector('.page.active main');
+      if (main) {
+        main.setAttribute('tabindex', '-1');
+        main.focus({ preventScroll: false });
+        main.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      }
+    }
+
+    function backToModule() {
+      showPage('module');
+    }
+
+    function goBack() {
+      if (currentUser) showPage('dashboard');
+      else showPage('landing');
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  NAV RENDER
+    // ══════════════════════════════════════════════════════════
+    function renderNav() {
+      const right = document.getElementById('navRight');
+      if (currentUser) {
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const firstName = escapeHtml(currentUser.name.split(' ')[0]);
+        right.innerHTML = `
+      <div class="nav-user">
+        <div class="avatar">${escapeHtml(initials)}</div>
+        <span style="font-size:0.7rem;">${firstName}</span>
+      </div>
+      ${currentUser.isAdmin ? `<button type="button" class="nav-pill outline" style="font-size:0.65rem;padding:5px 12px;" onclick="showPage('admin')">Admin</button>` : ''}
+      <button type="button" class="nav-pill outline" style="font-size:0.65rem;padding:5px 12px;" onclick="doLogout()">Sair</button>
+    `;
+      } else {
+        right.innerHTML = `
+      <button type="button" class="nav-pill outline" onclick="showPage('login')">Entrar</button>
+      <button type="button" class="nav-pill filled" onclick="showPage('register')">Inscrever-se</button>
+    `;
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  AUTH
+    // ══════════════════════════════════════════════════════════
+    const loginEmailEl = document.getElementById('login-email');
+    if (loginEmailEl) {
+      loginEmailEl.addEventListener('input', function () {
+        const isAdmin = this.value.trim() === ADMIN_EMAIL;
+        document.getElementById('loginDobGroup').classList.toggle('hidden', isAdmin);
+        document.getElementById('loginKeyGroup').classList.toggle('hidden', !isAdmin);
+      });
+    }
+
+    function doRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const dob = document.getElementById('reg-dob').value;
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const city = document.getElementById('reg-city').value.trim();
+      const prof = document.getElementById('reg-profession').value;
+      const errEl = document.getElementById('registerError');
+      const okEl = document.getElementById('registerSuccess');
+
+      errEl.classList.add('hidden'); okEl.classList.add('hidden');
+      if (!name || !dob || !email || !city || !prof) { showErr(errEl, 'Preencha todos os campos.'); return; }
+      if (!email.includes('@')) { showErr(errEl, 'E-mail inválido.'); return; }
+      if (email === ADMIN_EMAIL) { showErr(errEl, 'Este e-mail não pode ser usado.'); return; }
+
+      const users = S.users();
+      if (users.find(u => u.email === email)) { showErr(errEl, 'E-mail já cadastrado.'); return; }
+
+      const user = { name, dob, email, city, profession: prof, isAdmin: false, joinedAt: new Date().toISOString() };
+      users.push(user);
+      S.saveUsers(users);
+      okEl.textContent = '✅ Conta criada com sucesso! Redirecionando...';
+      okEl.classList.remove('hidden');
+      setTimeout(() => { loginUser(user); }, 1200);
+    }
+
+    function doLogin() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const dob = document.getElementById('login-dob').value;
+      const key = document.getElementById('login-key').value;
+      const errEl = document.getElementById('loginError');
+      errEl.classList.add('hidden');
+
+      if (email === ADMIN_EMAIL) {
+        if (key !== ADMIN_KEY) { showErr(errEl, 'Chave de administrador incorreta.'); return; }
+        loginUser({ name: 'Administrador', email: ADMIN_EMAIL, isAdmin: true });
+        return;
+      }
+
+      if (!email || !dob) { showErr(errEl, 'Preencha e-mail e data de nascimento.'); return; }
+      const users = S.users();
+      const user = users.find(u => u.email === email && u.dob === dob);
+      if (!user) { showErr(errEl, 'E-mail ou data de nascimento incorretos.'); return; }
+      loginUser(user);
+    }
+
+    function loginUser(user) {
+      currentUser = user;
+      S.saveSession(user);
+      if (user.isAdmin) showPage('admin');
+      else showPage('dashboard');
+    }
+
+    function doLogout() {
+      currentUser = null;
+      S.clearSession();
+      showPage('landing');
+    }
+
+    function showErr(el, msg) {
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  LANDING
+    // ══════════════════════════════════════════════════════════
+    function renderLanding() {
+      const grid = document.getElementById('landingModulesGrid');
+      if (grid) {
+        grid.innerHTML = MODULES_DATA.map(m => {
+          const isOpen = expandedLandingModuleId === m.id;
+          const lessonsHtml = m.lessons.map((l, i) => `
+        <li class="mod-lp-item">
+          <span class="mod-lp-num">${i + 1}</span>
+          <div>
+            <span class="mod-lp-title">${escapeHtml(l.title)}</span>
+            <span class="mod-lp-meta">${escapeHtml(l.duration)} · ${l.type === 'video' ? 'Vídeo' : 'Leitura'}</span>
+          </div>
+        </li>`).join('');
+          const outcomesHtml = (m.outcomes || []).map(o => `<li>${escapeHtml(o)}</li>`).join('');
+          const longDesc = escapeHtml(m.longDesc || m.desc);
+          return `
+      <div class="mod-preview ${m.colorClass}${isOpen ? ' is-open' : ''}" data-mod-id="${m.id}">
+        <button type="button" class="mod-preview-header" onclick="toggleLandingModule(${m.id})" aria-expanded="${isOpen}">
+          <div class="mp-num">${m.id.toString().padStart(2, '0')}</div>
+          <div class="mp-level">${m.icon} ${escapeHtml(m.level)}</div>
+          <div class="mp-title">${escapeHtml(m.title)}</div>
+          <div class="mp-desc">${escapeHtml(m.desc)}</div>
+          <div class="mp-meta">
+            ${m.tags.map(t => `<span class="mp-tag">${escapeHtml(t)}</span>`).join('')}
+            <span class="mp-tag">${m.lessons.length} aulas</span>
+          </div>
+          <span class="mod-expand-hint">${isOpen ? '▲ Recolher ementa' : '▼ Ver ementa completa e objetivos'}</span>
+        </button>
+        <div class="mod-preview-body">
+          <p class="mod-long-desc">${longDesc}</p>
+          <h4 class="mod-h4">O que você vai dominar</h4>
+          <ul class="mod-outcomes">${outcomesHtml}</ul>
+          <h4 class="mod-h4">Ementa — aulas</h4>
+          <ol class="mod-lesson-plan">${lessonsHtml}</ol>
+          <div class="mod-cta-row">
+            <button type="button" class="btn-main" onclick="event.stopPropagation();openModuleFromLanding(${m.id})">${currentUser ? 'Abrir módulo no curso' : 'Ver aulas no player'}</button>
+            ${currentUser ? '' : `<button type="button" class="btn-ghost" onclick="event.stopPropagation();showPage('register')">Criar conta grátis</button>
+            <button type="button" class="btn-ghost" onclick="event.stopPropagation();showPage('login')">Já tenho conta</button>`}
+          </div>
+        </div>
+      </div>`;
+        }).join('');
+      }
+      renderLandingTestis();
+    }
+
+    function toggleLandingModule(id) {
+      expandedLandingModuleId = expandedLandingModuleId === id ? null : id;
+      renderLanding();
+      if (expandedLandingModuleId) {
+        requestAnimationFrame(() => {
+          const el = document.querySelector('[data-mod-id="' + expandedLandingModuleId + '"]');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      }
+    }
+
+    function openModuleFromLanding(id) {
+      currentModuleId = id;
+      showPage('module');
+    }
+
+    function backFromModule() {
+      if (currentUser) showPage('dashboard');
+      else showPage('landing');
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  DASHBOARD
+    // ══════════════════════════════════════════════════════════
+    function renderDashboard() {
+      if (!currentUser) return;
+      const progress = S.progress(currentUser.email);
+
+      document.getElementById('dashGreeting').textContent = `Olá, ${currentUser.name.split(' ')[0]}! 👋`;
+      document.getElementById('dashSub').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+      // Stats
+      let totalCompleted = 0, totalLessons = 0, quizzesDone = 0;
+      MODULES_DATA.forEach(m => {
+        totalLessons += m.lessons.length;
+        m.lessons.forEach(l => { if (progress[`${m.id}-${l.id}`]) totalCompleted++; });
+        if (progress[`quiz-${m.id}`]) quizzesDone++;
+      });
+      const pct = totalLessons ? Math.round(totalCompleted / totalLessons * 100) : 0;
+      const remaining = Math.max(0, totalLessons - totalCompleted);
+
+      document.getElementById('dashStats').innerHTML = `
+    <div class="dstat"><span class="dstat-n">${pct}%</span><span class="dstat-l">Progresso geral</span></div>
+    <div class="dstat"><span class="dstat-n">${totalCompleted}</span><span class="dstat-l">Aulas concluídas</span></div>
+    <div class="dstat"><span class="dstat-n">${quizzesDone}</span><span class="dstat-l">Avaliações feitas</span></div>
+    <div class="dstat"><span class="dstat-n">${remaining}</span><span class="dstat-l">Aulas restantes</span></div>
+  `;
+
+      // Module cards
+      document.getElementById('dashModules').innerHTML = MODULES_DATA.map(m => {
+        const done = m.lessons.filter(l => progress[`${m.id}-${l.id}`]).length;
+        const pct = m.lessons.length ? Math.round(done / m.lessons.length * 100) : 0;
+        const quizDone = progress[`quiz-${m.id}`];
+        const score = progress[`quiz-score-${m.id}`] || 0;
+        return `
+    <div class="mc-dash" onclick="openModule(${m.id})">
+      <div class="mc-dash-header">
+        <span class="mc-dash-num" style="background:${m.color}22;color:${m.color}">${m.icon} ${m.level.split('·')[0].trim()}</span>
+        <span class="mc-dash-pct" style="color:${m.color}">${pct}%</span>
+      </div>
+      <div class="mc-dash-title">${m.title}</div>
+      <div class="mc-dash-desc">${m.desc.substring(0, 90)}...</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${m.color}"></div></div>
+      <div class="mc-dash-meta">
+        <span>${done}/${m.lessons.length} aulas</span>
+        <span>${quizDone ? '✅ Quiz: ' + score + '%' : '📝 Quiz pendente'}</span>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function openModule(id) {
+      currentModuleId = id;
+      showPage('module');
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  MODULE PAGE
+    // ══════════════════════════════════════════════════════════
+    function renderModulePage() {
+      const m = MODULES_DATA.find(x => x.id === currentModuleId);
+      if (!m) return;
+      const progress = currentUser ? S.progress(currentUser.email) : {};
+      const done = m.lessons.filter(l => progress[`${m.id}-${l.id}`]).length;
+      const pct = m.lessons.length ? Math.round(done / m.lessons.length * 100) : 0;
+      const guestNote = !currentUser ? `<div class="guest-banner"><strong>Modo visitante.</strong> Você pode assistir às aulas e ler o material. <button type="button" class="guest-banner-btn" onclick="showPage('register')">Crie uma conta grátis</button> para salvar progresso e fazer a avaliação do módulo.</div>` : '';
+      const descBlock = `<div class="mod-description">${escapeHtml(m.longDesc || m.desc)}</div>`;
+
+      document.getElementById('modHero').innerHTML = `
+    ${guestNote}
+    <div class="mod-hero-num">${m.id.toString().padStart(2, '0')}</div>
+    <div class="mod-level" style="color:${m.color}">${m.icon} ${escapeHtml(m.level)}</div>
+    <div class="mod-title">${escapeHtml(m.title)}</div>
+    ${descBlock}
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;font-size:0.72rem;color:var(--muted2);">
+      <span>📚 ${m.lessons.length} aulas</span>
+      <span>⏱ ${m.hours}h de conteúdo</span>
+      <span>📝 1 avaliação</span>
+    </div>
+    <div class="mod-progress-wrap">
+      <div class="mod-progress-label"><span>Progresso</span><span style="color:${m.color}">${pct}%</span></div>
+      <div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:${pct}%;background:${m.color}"></div></div>
+    </div>`;
+
+      document.getElementById('lessonsList').innerHTML = m.lessons.map((l, i) => {
+        const isDone = progress[`${m.id}-${l.id}`];
+        return `
+    <div class="lesson-item ${isDone ? 'completed' : ''}" onclick="openLesson(${m.id},'${l.id}')">
+      <div class="lesson-check">${isDone ? '✓' : i + 1}</div>
+      <div class="lesson-info">
+        <div class="lesson-title">${escapeHtml(l.title)}</div>
+        <div class="lesson-meta">⏱ ${escapeHtml(l.duration)}</div>
+      </div>
+      <span class="lesson-type type-${l.type}">▶ ${l.type === 'video' ? 'Vídeo' : 'Leitura'}</span>
+    </div>`;
+      }).join('');
+
+      const quizDone = progress[`quiz-${m.id}`];
+      const quizBtn = document.getElementById('modQuizBtn');
+      quizBtn.disabled = false;
+      quizBtn.removeAttribute('title');
+      if (quizDone) {
+        const score = progress[`quiz-score-${m.id}`] || 0;
+        quizBtn.textContent = `✅ Avaliação concluída — Nota: ${score}%`;
+        quizBtn.style.borderColor = 'var(--c1)';
+        quizBtn.style.color = 'var(--c1)';
+      } else if (!currentUser) {
+        quizBtn.textContent = `📝 Avaliação do módulo (login para fazer)`;
+        quizBtn.style.borderColor = 'var(--c4)';
+        quizBtn.style.color = 'var(--c4)';
+        quizBtn.title = 'Entre para registrar a nota e salvar progresso';
+      } else {
+        quizBtn.textContent = `📝 Fazer avaliação do módulo ${m.id}`;
+        quizBtn.style.borderColor = 'var(--c4)';
+        quizBtn.style.color = 'var(--c4)';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  LESSON PAGE
+    // ══════════════════════════════════════════════════════════
+    function openLesson(moduleId, lessonId) {
+      currentModuleId = moduleId;
+      currentLessonId = lessonId;
+      renderLesson();
+      showPage('lesson');
+    }
+
+    function renderLesson() {
+      const m = MODULES_DATA.find(x => x.id === currentModuleId);
+      const lIdx = m.lessons.findIndex(x => x.id === currentLessonId);
+      const l = m.lessons[lIdx];
+      const progress = currentUser ? S.progress(currentUser.email) : {};
+      const isDone = progress[`${m.id}-${l.id}`];
+
+      document.getElementById('lessonHeader').innerHTML = `
+    <div class="lesson-breadcrumb">${m.icon} ${m.title} → Aula ${lIdx + 1}</div>
+    <div class="lesson-h">${l.title}</div>
+    <div class="lesson-meta-row">
+      <span>⏱ ${l.duration}</span>
+      <span class="lesson-type type-video">▶ Vídeo + Teoria</span>
+      ${isDone ? '<span style="color:var(--c1)">✓ Concluída</span>' : ''}
+    </div>`;
+
+      const iframeTitle = 'Vídeo: ' + l.title;
+      document.getElementById('lessonVideoWrap').innerHTML = `
+    <div class="video-container">
+      <iframe title="${escapeHtmlAttr(iframeTitle)}"
+        src="https://www.youtube.com/embed/${l.videoId}?rel=0&modestbranding=1"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen loading="lazy"></iframe>
+    </div>`;
+
+      document.getElementById('lessonContent').innerHTML = l.content;
+
+      // Nav buttons
+      const prevL = lIdx > 0 ? m.lessons[lIdx - 1] : null;
+      const nextL = lIdx < m.lessons.length - 1 ? m.lessons[lIdx + 1] : null;
+      document.getElementById('lessonNav').innerHTML = `
+    ${prevL ? `<button type="button" class="btn-lesson-nav" onclick="openLesson(${m.id},'${prevL.id}')">← Anterior</button>` : '<div></div>'}
+    <button type="button" class="btn-complete ${isDone ? 'done' : ''}" onclick="markDone(${m.id},'${l.id}')">
+      ${isDone ? '✓ Concluída' : '✅ Marcar como concluída'}
+    </button>
+    ${nextL ? `<button type="button" class="btn-lesson-nav" style="text-align:right" onclick="openLesson(${m.id},'${nextL.id}')">Próxima →</button>` : '<div></div>'}
+  `;
+    }
+
+    function markDone(moduleId, lessonId) {
+      if (!currentUser) { showPage('login'); return; }
+      const progress = S.progress(currentUser.email);
+      progress[`${moduleId}-${lessonId}`] = true;
+      S.saveProgress(currentUser.email, progress);
+      toast('Aula marcada como concluída! ✅', 'ok');
+      renderLesson();
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  QUIZ
+    // ══════════════════════════════════════════════════════════
+    function startQuiz() {
+      if (!currentUser) { showPage('login'); return; }
+      currentQuizModule = currentModuleId;
+      currentQuizQ = 0;
+      quizAnswers = [];
+      renderQuizQuestion();
+      showPage('quiz');
+    }
+
+    function renderQuizQuestion() {
+      const m = MODULES_DATA.find(x => x.id === currentQuizModule);
+      const q = m.quiz[currentQuizQ];
+      const total = m.quiz.length;
+      const pct = Math.round(currentQuizQ / total * 100);
+
+      document.getElementById('quizTitle').textContent = `Avaliação — ${m.title}`;
+      document.getElementById('quizSub').textContent = `Questão ${currentQuizQ + 1} de ${total}`;
+      document.getElementById('quizProgressFill').style.width = pct + '%';
+
+      document.getElementById('quizBody').innerHTML = `
+    <div class="quiz-question">
+      <div class="qq-num">Questão ${currentQuizQ + 1} de ${total}</div>
+      <div class="qq-text">${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((o, i) => `
+          <button type="button" class="quiz-opt" id="qopt${i}" onclick="selectAnswer(${i})">${String.fromCharCode(65 + i)}) ${o}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+    </div>
+    <div class="quiz-controls">
+      <button type="button" class="btn-quiz-next" id="btnNext" style="display:none" onclick="nextQuestion()">
+        ${currentQuizQ < total - 1 ? 'Próxima →' : 'Ver resultado →'}
+      </button>
+    </div>`;
+    }
+
+    let answeredCurrent = false;
+    function selectAnswer(idx) {
+      if (answeredCurrent) return;
+      answeredCurrent = true;
+      const m = MODULES_DATA.find(x => x.id === currentQuizModule);
+      const q = m.quiz[currentQuizQ];
+      const isCorrect = idx === q.ans;
+      quizAnswers.push({ q: currentQuizQ, selected: idx, correct: isCorrect });
+
+      document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+        if (i === q.ans) btn.classList.add('correct');
+        else if (i === idx && !isCorrect) btn.classList.add('wrong');
+        btn.disabled = true;
+      });
+
+      const fb = document.getElementById('quizFeedback');
+      fb.textContent = (isCorrect ? '✅ Correto! ' : '❌ Incorreto. ') + q.exp;
+      fb.classList.add('show', isCorrect ? 'ok' : 'fail');
+      document.getElementById('btnNext').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      answeredCurrent = false;
+      currentQuizQ++;
+      const m = MODULES_DATA.find(x => x.id === currentQuizModule);
+      if (currentQuizQ < m.quiz.length) {
+        renderQuizQuestion();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      const correct = quizAnswers.filter(a => a.correct).length;
+      const total = quizAnswers.length;
+      const score = Math.round(correct / total * 100);
+      const m = MODULES_DATA.find(x => x.id === currentQuizModule);
+
+      // Save progress
+      const progress = S.progress(currentUser.email);
+      progress[`quiz-${currentQuizModule}`] = true;
+      progress[`quiz-score-${currentQuizModule}`] = score;
+      S.saveProgress(currentUser.email, progress);
+
+      let grade, color;
+      if (score >= 90) { grade = '🏆 Excelente!'; color = 'var(--c1)'; }
+      else if (score >= 70) { grade = '✅ Aprovado!'; color = 'var(--c2)'; }
+      else if (score >= 50) { grade = '⚠️ Regular'; color = 'var(--c4)'; }
+      else { grade = '❌ Insuficiente'; color = 'var(--c3)'; }
+
+      document.getElementById('quizProgressFill').style.width = '100%';
+      document.getElementById('quizBody').innerHTML = `
+    <div class="quiz-result">
+      <div class="qr-score" style="color:${color}">${score}%</div>
+      <div class="qr-label">${correct} de ${total} questões corretas</div>
+      <div class="qr-grade">${grade}</div>
+      <p style="font-size:0.78rem;color:var(--muted2);max-width:400px;margin:0 auto 2rem;line-height:1.8;">
+        ${score >= 70 ? 'Parabéns! Você demonstrou bom domínio do conteúdo deste módulo.' : 'Continue estudando o material e refaça a avaliação quando se sentir pronto.'}
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button type="button" class="btn-main" onclick="showPage('dashboard')">→ Ir ao dashboard</button>
+        <button type="button" class="btn-ghost" onclick="retryQuiz()">↺ Refazer avaliação</button>
+      </div>
+    </div>`;
+    }
+
+    function retryQuiz() {
+      currentQuizQ = 0;
+      quizAnswers = [];
+      answeredCurrent = false;
+      renderQuizQuestion();
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  TESTIMONIALS
+    // ══════════════════════════════════════════════════════════
+    function setRating(n) {
+      selectedRating = n;
+      document.querySelectorAll('.star-btn').forEach((btn, i) => {
+        const on = i < n;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { toast('Imagem muito grande (máx 2MB)', 'err'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitTestimonial() {
+      if (!currentUser) return;
+      const text = document.getElementById('testiText').value.trim();
+      const msgEl = document.getElementById('testiFormMsg');
+      if (!text || text.length < 20) {
+        msgEl.textContent = 'Por favor, escreva pelo menos 20 caracteres.';
+        msgEl.className = 'form-error';
+        msgEl.classList.remove('hidden');
+        return;
+      }
+      const img = document.getElementById('previewImg').src;
+      const testi = {
+        id: Date.now(),
+        name: currentUser.name,
+        profession: currentUser.profession || '',
+        text,
+        rating: selectedRating,
+        image: img && img.length > 50 ? img : null,
+        date: new Date().toLocaleDateString('pt-BR'),
+        approved: false
+      };
+      const testis = S.testimonials();
+      testis.push(testi);
+      S.saveTesti(testis);
+      msgEl.textContent = '✅ Depoimento enviado! Será publicado após aprovação do administrador.';
+      msgEl.className = 'form-success';
+      msgEl.classList.remove('hidden');
+      document.getElementById('testiText').value = '';
+      document.getElementById('previewImg').src = '';
+      document.getElementById('imagePreview').style.display = 'none';
+      selectedRating = 5;
+      setRating(5);
+    }
+
+    function renderTestimonialsPage() {
+      const wrap = document.getElementById('testiFormWrap');
+      if (wrap) wrap.classList.toggle('hidden', !currentUser);
+      if (currentUser) setRating(selectedRating || 5);
+      renderAllTestis('allTestisGrid', true);
+    }
+
+    function renderAllTestis(gridId, publicOnly = false) {
+      const testis = S.testimonials().filter(t => publicOnly ? t.approved : true);
+      // Add some default ones if empty
+      const defaults = getDefaultTestimonials();
+      const all = [...defaults, ...testis];
+      const grid = document.getElementById(gridId);
+      if (!grid) return;
+      if (!all.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:0.8rem;">Nenhum depoimento ainda. Seja o primeiro!</p>'; return; }
+      grid.innerHTML = all.map(t => {
+        const name = escapeHtml(t.name);
+        const text = escapeHtml(t.text);
+        const prof = escapeHtml(t.profession || 'Aluno ASI');
+        const date = escapeHtml(t.date || '2025');
+        const initials = escapeHtml(t.name.substring(0, 2).toUpperCase());
+        const imgAlt = escapeHtmlAttr('Foto de ' + t.name);
+        return `
+    <div class="testi-card">
+      <div class="testi-stars" aria-hidden="true">${'⭐'.repeat(t.rating || 5)}</div>
+      <div class="testi-text">"${text}"</div>
+      <div class="testi-author">
+        ${t.image ? `<img class="testi-img" src="${escapeHtmlAttr(t.image)}" alt="${imgAlt}">` : `<div class="testi-avatar">${initials}</div>`}
+        <div>
+          <div class="testi-name">${name}</div>
+          <div class="testi-role">${prof} · ${date}</div>
+        </div>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function renderLandingTestis() {
+      const grid = document.getElementById('landingTestiGrid');
+      if (!grid) return;
+      const defaults = getDefaultTestimonials().slice(0, 3);
+      const userTestis = S.testimonials().filter(t => t.approved).slice(0, 3);
+      const all = [...defaults, ...userTestis].slice(0, 6);
+      grid.innerHTML = all.map(t => {
+        const name = escapeHtml(t.name);
+        const text = escapeHtml(t.text);
+        const prof = escapeHtml(t.profession || 'Aluno ASI');
+        const initials = escapeHtml(t.name.substring(0, 2).toUpperCase());
+        const imgAlt = escapeHtmlAttr('Foto de ' + t.name);
+        return `
+    <div class="testi-card">
+      <div class="testi-stars" aria-hidden="true">${'⭐'.repeat(t.rating || 5)}</div>
+      <div class="testi-text">"${text}"</div>
+      <div class="testi-author">
+        ${t.image ? `<img class="testi-img" src="${escapeHtmlAttr(t.image)}" alt="${imgAlt}">` : `<div class="testi-avatar">${initials}</div>`}
+        <div>
+          <div class="testi-name">${name}</div>
+          <div class="testi-role">${prof}</div>
+        </div>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function getDefaultTestimonials() {
+      return [
+        { name: "Ana Carolina Lima", profession: "Desenvolvedora Backend", rating: 5, text: "O módulo de IA é incrível. Em 3 semanas já estava construindo pipelines RAG em produção. A didática é excelente e o conteúdo é extremamente atual.", date: "Jan 2025" },
+        { name: "Rafael Mendes", profession: "Tech Lead", rating: 5, text: "Esse curso transformou minha visão sobre arquitetura de sistemas. O módulo 4 sobre produto e monetização foi o diferencial que me faltava para liderar melhor.", date: "Fev 2025" },
+        { name: "Juliana Costa", profession: "Engenheira de Dados", rating: 5, text: "Finalmente um curso que une teoria com projetos reais. Já apliquei o pipeline com LangGraph no trabalho e economizei horas de processamento manual.", date: "Mar 2025" },
+      ];
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  ADMIN
+    // ══════════════════════════════════════════════════════════
+    function renderAdmin() {
+      if (!currentUser?.isAdmin) { showPage('landing'); return; }
+      const users = S.users();
+      const testis = S.testimonials();
+
+      // Stats
+      let totalProgress = 0;
+      users.forEach(u => {
+        const p = S.progress(u.email);
+        const done = Object.keys(p).filter(k => !k.includes('quiz')).length;
+        const total = MODULES_DATA.reduce((acc, m) => acc + m.lessons.length, 0);
+        totalProgress += total ? Math.round(done / total * 100) : 0;
+      });
+      const avgProgress = users.length ? Math.round(totalProgress / users.length) : 0;
+
+      document.getElementById('adminStats').innerHTML = `
+    <div class="astat"><span class="astat-n">${users.length}</span><span class="astat-l">Alunos cadastrados</span></div>
+    <div class="astat"><span class="astat-n">${avgProgress}%</span><span class="astat-l">Progresso médio</span></div>
+    <div class="astat"><span class="astat-n">${testis.length}</span><span class="astat-l">Depoimentos</span></div>
+    <div class="astat"><span class="astat-n">${testis.filter(t => !t.approved).length}</span><span class="astat-l">Aguardando aprovação</span></div>
+  `;
+
+      renderAdminUsers();
+      renderAdminProgress();
+      renderAdminTestimonials();
+      renderAdminSettings();
+    }
+
+    function renderAdminUsers() {
+      const users = S.users();
+      document.getElementById('admin-panel-users').innerHTML = `
+    <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:1.2rem;">Usuários cadastrados</h3>
+    ${users.length === 0 ? '<p style="color:var(--muted);font-size:0.8rem;">Nenhum aluno cadastrado ainda.</p>' : ''}
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead><tr>
+        <th>Nome</th><th>E-mail</th><th>Cidade</th><th>Profissão</th><th>Data de entrada</th><th>Ação</th>
+      </tr></thead>
+      <tbody>
+        ${users.map(u => `
+          <tr>
+            <td style="color:var(--text)">${escapeHtml(u.name)}</td>
+            <td>${escapeHtml(u.email)}</td>
+            <td>${escapeHtml(u.city || '-')}</td>
+            <td>${escapeHtml(u.profession || '-')}</td>
+            <td>${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('pt-BR') : '-'}</td>
+            <td><button type="button" class="admin-action-btn" onclick="deleteUser(${JSON.stringify(u.email)})">Remover</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+    }
+
+    function renderAdminProgress() {
+      const users = S.users();
+      const totalLessons = MODULES_DATA.reduce((acc, m) => acc + m.lessons.length, 0);
+      document.getElementById('admin-panel-progress').innerHTML = `
+    <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:1.2rem;">Progresso dos alunos</h3>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead><tr>
+        <th>Aluno</th><th>Progresso</th>
+        ${MODULES_DATA.map(m => `<th>M${m.id} Quiz</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${users.map(u => {
+        const p = S.progress(u.email);
+        const done = Object.keys(p).filter(k => !k.includes('quiz')).length;
+        const pct = totalLessons ? Math.round(done / totalLessons * 100) : 0;
+        return `<tr>
+            <td style="color:var(--text)">${escapeHtml(u.name)}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="progress-bar" style="width:80px;height:6px"><div class="progress-fill" style="width:${pct}%;background:var(--c1)"></div></div>
+                <span style="font-size:0.7rem;color:var(--muted2)">${pct}%</span>
+              </div>
+            </td>
+            ${MODULES_DATA.map(m => {
+          const score = p[`quiz-score-${m.id}`];
+          return `<td style="font-size:0.72rem;">${score !== undefined ? score + '%' : '—'}</td>`;
+        }).join('')}
+          </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+    </div>`;
+    }
+
+    function renderAdminTestimonials() {
+      const testis = S.testimonials();
+      document.getElementById('admin-panel-testimonials').innerHTML = `
+    <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:1.2rem;">Depoimentos para moderação</h3>
+    ${testis.length === 0 ? '<p style="color:var(--muted);font-size:0.8rem;">Nenhum depoimento enviado ainda.</p>' : ''}
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${testis.map((t, i) => `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <div style="font-family:var(--font-display);font-size:0.85rem;font-weight:700;margin-bottom:0.2rem;">${escapeHtml(t.name)} <span style="font-size:0.7rem;color:var(--muted)">— ${escapeHtml(t.date || '')}</span></div>
+              <div style="font-size:0.75rem;color:var(--muted2);line-height:1.7;max-width:500px;">${escapeHtml(t.text)}</div>
+              ${t.image ? `<img src="${escapeHtmlAttr(t.image)}" alt="" style="height:60px;border-radius:6px;margin-top:8px;">` : ''}
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;">
+              ${!t.approved ? `<button type="button" class="admin-action-btn" style="color:var(--c1);border-color:var(--c1);" onclick="approveTestimonial(${i})">Aprovar</button>` : '<span style="font-size:0.65rem;color:var(--c1)">✓ Aprovado</span>'}
+              <button type="button" class="admin-action-btn" onclick="deleteTestimonial(${i})">Remover</button>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+    }
+
+    function renderAdminSettings() {
+      document.getElementById('admin-panel-settings').innerHTML = `
+    <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:1.5rem;">Configurações da plataforma</h3>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:500px;">
+      <p style="font-size:0.78rem;color:var(--muted2);line-height:1.7;margin-bottom:1.2rem;">
+        Em produção, credenciais de administrador devem ficar apenas no servidor (sessão segura, sem expor chaves no navegador).
+      </p>
+      <div class="form-group">
+        <label class="form-label">Exportar dados dos alunos (JSON)</label>
+        <button type="button" class="btn-ghost" style="font-size:0.72rem;padding:8px 16px;" onclick="exportData()">⬇ Exportar dados</button>
+      </div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label class="form-label" style="color:var(--c3)">Zona de perigo</label>
+        <button type="button" class="btn-ghost" style="font-size:0.72rem;padding:8px 16px;border-color:var(--c3);color:var(--c3);" onclick="clearAllData()">🗑 Limpar todos os dados</button>
+      </div>
+    </div>`;
+    }
+
+    function switchAdminTab(ev, tab) {
+      document.querySelectorAll('.atab').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      const btn = ev.currentTarget;
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const panel = document.getElementById('admin-panel-' + tab);
+      if (panel) panel.classList.add('active');
+    }
+
+    function deleteUser(email) {
+      if (!confirm('Remover este usuário?')) return;
+      const users = S.users().filter(u => u.email !== email);
+      S.saveUsers(users);
+      toast('Usuário removido.', 'ok');
+      renderAdmin();
+    }
+
+    function approveTestimonial(idx) {
+      const testis = S.testimonials();
+      testis[idx].approved = true;
+      S.saveTesti(testis);
+      toast('Depoimento aprovado! ✅', 'ok');
+      renderAdminTestimonials();
+    }
+
+    function deleteTestimonial(idx) {
+      if (!confirm('Remover este depoimento?')) return;
+      const testis = S.testimonials();
+      testis.splice(idx, 1);
+      S.saveTesti(testis);
+      toast('Depoimento removido.', 'ok');
+      renderAdminTestimonials();
+    }
+
+    function exportData() {
+      const data = { users: S.users(), testimonials: S.testimonials(), exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'asi-data-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+    }
+
+    function clearAllData() {
+      if (!confirm('ATENÇÃO: Isso irá apagar TODOS os dados. Tem certeza?')) return;
+      if (!confirm('Confirmação final: apagar tudo?')) return;
+      localStorage.clear();
+      toast('Todos os dados foram removidos.', 'ok');
+      renderAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════════════════════
+    function toast(msg, type = 'ok') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `show ${type}`;
+      setTimeout(() => el.className = '', 3000);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  SCROLL PROGRESS BAR
+    // ══════════════════════════════════════════════════════════
+    window.addEventListener('scroll', () => {
+      const el = document.getElementById('scrollBar');
+      if (el) {
+        const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        el.style.transform = `scaleX(${Math.min(pct, 1)})`;
+      }
+    });
+
+    // ══════════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════════
+    function init() {
+      const session = S.session();
+      if (session) {
+        // Refresh user data from storage in case it changed
+        if (session.isAdmin) {
+          currentUser = session;
+        } else {
+          const users = S.users();
+          currentUser = users.find(u => u.email === session.email) || session;
+        }
+        renderNav();
+        if (currentUser.isAdmin) showPage('admin');
+        else showPage('dashboard');
+      } else {
+        showPage('landing');
+      }
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
