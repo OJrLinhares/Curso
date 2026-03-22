@@ -2498,12 +2498,12 @@
           <p class="sec-p">Python assíncrono, APIs modernas, containers, dados e IA aplicada — alinhado ao que empresas
             exigem hoje.</p>
           <ul class="stack-grid" role="list">
-            <li>Python · asyncio</li>
-            <li>FastAPI · Pydantic</li>
-            <li>Docker · CI/CD</li>
-            <li>PostgreSQL · Redis</li>
-            <li>LangChain · RAG</li>
-            <li>Kubernetes · Cloud</li>
+            <li><button type="button" class="btn-ghost" style="width:100%; border-radius: var(--radius); font-size:0.75rem;" onclick="toggleLandingModule(1)">Python · asyncio</button></li>
+            <li><button type="button" class="btn-ghost" style="width:100%; border-radius: var(--radius); font-size:0.75rem;" onclick="toggleLandingModule(2)">FastAPI · Pydantic</button></li>
+            <li><button type="button" class="btn-ghost" style="width:100%; border-radius: var(--radius); font-size:0.75rem;" onclick="toggleLandingModule(1)">Docker · CI/CD</button></li>
+            <li><button type="button" class="btn-ghost" style="width:100%; border-radius: var(--radius); font-size:0.75rem;" onclick="toggleLandingModule(2)">PostgreSQL · Redis</button></li>
+            <li><button type="button" class="btn-ghost" style="width:100%; border-radius: var(--radius); font-size:0.75rem;" onclick="toggleLandingModule(3)">LangChain · RAG</button></li>
+            <li><button type="button" class="btn-ghost" style="width:100%; border-radius: var(--radius); font-size:0.75rem;" onclick="toggleLandingModule(4)">Kubernetes · Cloud</button></li>
           </ul>
         </div>
       </section>
@@ -4146,9 +4146,9 @@ cac = total_sales_marketing_spend / new_customers
           <h4 class="mod-h4">Ementa — aulas</h4>
           <ol class="mod-lesson-plan">${lessonsHtml}</ol>
           <div class="mod-cta-row">
-            <button type="button" class="btn-main" onclick="event.stopPropagation();openModuleFromLanding(${m.id})">${currentUser ? 'Abrir módulo no curso' : 'Ver aulas no player'}</button>
-            ${currentUser ? '' : `<button type="button" class="btn-ghost" onclick="event.stopPropagation();showPage('register')">Criar conta grátis</button>
-            <button type="button" class="btn-ghost" onclick="event.stopPropagation();showPage('login')">Já tenho conta</button>`}
+            <button type="button" class="btn-main" onclick="openModuleFromLanding(${m.id})">${currentUser ? 'Abrir módulo no curso' : 'Ver aulas no player'}</button>
+            ${currentUser ? '' : `<button type="button" class="btn-ghost" onclick="showPage('register')">Criar conta grátis</button>
+            <button type="button" class="btn-ghost" onclick="showPage('login')">Já tenho conta</button>`}
           </div>
         </div>
       </div>`;
@@ -4298,6 +4298,7 @@ cac = total_sales_marketing_spend / new_customers
     // ══════════════════════════════════════════════════════════
     //  LESSON PAGE
     // ══════════════════════════════════════════════════════════
+
     function openLesson(moduleId, lessonId) {
       currentModuleId = moduleId;
       currentLessonId = lessonId;
