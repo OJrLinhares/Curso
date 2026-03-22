@@ -124,7 +124,8 @@ button.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
 .sec-h{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);
   font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:0.8rem;}
 .sec-p{color:var(--muted2);font-size:0.82rem;line-height:1.9;max-width:500px;margin-bottom:2.5rem;}
-.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.modules-grid{display:grid;grid-template-columns:1fr;gap:14px;width:100%;}
+.modules-grid .mod-preview{width:100%;max-width:100%;}
 .mod-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
   padding:1.5rem;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
 .mod-preview::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.25s;}
